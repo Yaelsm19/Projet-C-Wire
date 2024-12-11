@@ -11,7 +11,6 @@ afficher_aide() {
     echo "parametre 5 : Option d’aide (-h)"
 }
 verif_3arguments() {
-    echo "salut"
     if [ ! -f "$1" ]; then
         echo "Le fichier spécifié n'existe pas ou n'est pas un fichier valide."
         return 1
@@ -42,10 +41,20 @@ verif_tout_arguments(){
         echo "Nombre de paramètres incorrect"
         afficher_aide
         return 1
+    elif [ $nb_args -eq 3 ];then
+        verif_3arguments
+        return $?
+    elif [ $nb_args -eq 4 ];then
+        if [ $4 -ne 1 ] && [ $4 -ne 2 ] && [ $4 -ne 3 ] && [ $4 -ne 4 ] && [ $4 -ne 5 ]; then
+            return 1
+        fi
     fi
-    resultat=$(verif_3arguments)
-    echo "$resultat"
-    return 1
+
+    return 0
 }
-verif_tout_arguments
+verif_tout_arguments $1 $2 $3 $4
+if [ $? -eq 1 ];then
+    echo "Il faut changer les paramètres"
+    exit 1
+fi
 
