@@ -36,13 +36,13 @@ verif_3arguments() {
         echo "Combinaison de paramètres 2 et 3 impossible."
         verification=1
     fi
-    if [[ "$verification" = 1 ]]; then
+    if [[ "$verification" -eq 1 ]]; then
         afficher_aide
         exit 1
     fi
 }
 verif_tout_arguments(){
-    if [[ $nb_args -lt 3 || $nb_args -gt 6 ]];then
+    if [[ $nb_args -lt 3 || $nb_args -gt 4 ]];then
         echo "Nombre de paramètres incorrect"
         afficher_aide
         exit 1
@@ -77,4 +77,4 @@ verifier_presence_dossier(){
 verifier_presence_dossier
 #(head -n 1 "$chemin_fichier" && grep "1" "$chemin_fichier")
 
-grep -E -e "^[^-]+;[^-]+;-;-;-;-;[^-]+;-" -e "^[^-]+;[^-]+;-;-;[^-]+;-;-;[^-]" "$chemin_fichier" | cut -d ';' -f 2,7,8 >> /workspaces/Projet-C-Wire/tmp/hvb_comp.csv
+grep -E -e "^[^-]+;[^-]+;-;-;-;-;[^-]+;-" -e "^[^-]+;[^-]+;-;-;[^-]+;-;-;[^-]" "$chemin_fichier" | cut -d ';' -f 2,7,8 | tr "-" "0" >> /workspaces/Projet-C-Wire/tmp/hvb_comp.csv
