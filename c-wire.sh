@@ -75,6 +75,55 @@ verifier_presence_dossier(){
     fi
 }
 verifier_presence_dossier
-#(head -n 1 "$chemin_fichier" && grep "1" "$chemin_fichier")
+trier_fichier_3_parametre(){
+    if [[ "$type_station" == "hvb" ]]; then
+        head -n 1 "$chemin_fichier" | cut -d ';' -f 2,7,8 >> /workspaces/Projet-C-Wire/tmp/hvb_comp.csv
+        grep -E -e "^[^-]+;[^-]+;-;-;-;-;[^-]+;-" -e "^[^-]+;[^-]+;-;-;[^-]+;-;-;[^-]" "$chemin_fichier" | cut -d ';' -f 2,7,8 | tr "-" "0" >> /workspaces/Projet-C-Wire/tmp/hvb_comp.csv
+    elif [[ "$type_station" == "hva" ]]; then
+        head -n 1 "$chemin_fichier" | cut -d ';' -f 3,7,8 >> /workspaces/Projet-C-Wire/tmp/hvb_comp.csv
+        grep -E -e "^[^-]+;[^-]+;[^-]+;-;-;-;[^-]+;-" -e "^[^-]+;-;[^-]+;-;[^-]+;-;-;[^-]" "$chemin_fichier" | cut -d ';' -f 3,7,8 | tr "-" "0" >> /workspaces/Projet-C-Wire/tmp/hvb_comp.csv
+    elif [[ "$type_station" == "lv" ]]; then
+        if [[ "$type_conso" == "indiv" ]]; then
+            head -n 1 "$chemin_fichier" | cut -d ';' -f 4,7,8 >> /workspaces/Projet-C-Wire/tmp/hvb_comp.csv
+            grep -E -e "^[^-]+;-;[^-]+;[^-]+;-;-;[^-]+;-" -e "^[^-]+;-;-;[^-]+;-;[^-]+;-;[^-]" "$chemin_fichier" | cut -d ';' -f 4,7,8 | tr "-" "0" >> /workspaces/Projet-C-Wire/tmp/hvb_comp.csv
+        elif [[ "$type_conso" == "comp" ]]; then
+            head -n 1 "$chemin_fichier" | cut -d ';' -f 4,7,8 >> /workspaces/Projet-C-Wire/tmp/hvb_comp.csv
+            grep -E -e "^[^-]+;-;[^-]+;[^-]+;-;-;[^-]+;-" -e "^[^-]+;-;-;[^-]+;[^-]+;-;-;[^-]" "$chemin_fichier" | cut -d ';' -f 4,7,8 | tr "-" "0" >> /workspaces/Projet-C-Wire/tmp/hvb_comp.csv
+        elif [[ "$type_conso" == "all" ]]; then
+            head -n 1 "$chemin_fichier" | cut -d ';' -f 4,7,8 >> /workspaces/Projet-C-Wire/tmp/hvb_comp.csv
+            grep -E -e "^[^-]+;-;[^-]+;[^-]+;-;-;[^-]+;-" -e "^[^-]+;-;-;[^-]+;[^-]+;-;-;[^-]" -e "^[^-]+;-;-;[^-]+;-;[^-]+;-;[^-]" "$chemin_fichier" | cut -d ';' -f 4,7,8 | tr "-" "0" >> /workspaces/Projet-C-Wire/tmp/hvb_comp.csv
+        fi
+    fi
+}
+trier_fichier_4_parametre(){
+    if [[ "$type_station" == "hvb" ]]; then
+        head -n 1 "$chemin_fichier" | cut -d ';' -f 2,7,8 >> /workspaces/Projet-C-Wire/tmp/hvb_comp.csv
+        grep -E -e "^$id_centrale+;[^-]+;-;-;-;-;[^-]+;-" -e "^$id_centrale+;[^-]+;-;-;[^-]+;-;-;[^-]" "$chemin_fichier" | cut -d ';' -f 2,7,8 | tr "-" "0" >> /workspaces/Projet-C-Wire/tmp/hvb_comp.csv
+    elif [[ "$type_station" == "hva" ]]; then
+        head -n 1 "$chemin_fichier" | cut -d ';' -f 3,7,8 >> /workspaces/Projet-C-Wire/tmp/hvb_comp.csv
+        grep -E -e "^$id_centrale+;[^-]+;[^-]+;-;-;-;[^-]+;-" -e "^$id_centrale+;-;[^-]+;-;[^-]+;-;-;[^-]" "$chemin_fichier" | cut -d ';' -f 3,7,8 | tr "-" "0" >> /workspaces/Projet-C-Wire/tmp/hvb_comp.csv
+    elif [[ "$type_station" == "lv" ]]; then
+        if [[ "$type_conso" == "indiv" ]]; then
+            head -n 1 "$chemin_fichier" | cut -d ';' -f 4,7,8 >> /workspaces/Projet-C-Wire/tmp/hvb_comp.csv
+            grep -E -e "^$id_centrale+;-;[^-]+;[^-]+;-;-;[^-]+;-" -e "^$id_centrale+;-;-;[^-]+;-;[^-]+;-;[^-]" "$chemin_fichier" | cut -d ';' -f 4,7,8 | tr "-" "0" >> /workspaces/Projet-C-Wire/tmp/hvb_comp.csv
+        elif [[ "$type_conso" == "comp" ]]; then
+            head -n 1 "$chemin_fichier" | cut -d ';' -f 4,7,8 >> /workspaces/Projet-C-Wire/tmp/hvb_comp.csv
+            grep -E -e "^$id_centrale+;-;[^-]+;[^-]+;-;-;[^-]+;-" -e "^$id_centrale+;-;-;[^-]+;[^-]+;-;-;[^-]" "$chemin_fichier" | cut -d ';' -f 4,7,8 | tr "-" "0" >> /workspaces/Projet-C-Wire/tmp/hvb_comp.csv
+        elif [[ "$type_conso" == "all" ]]; then
+            head -n 1 "$chemin_fichier" | cut -d ';' -f 4,7,8 >> /workspaces/Projet-C-Wire/tmp/hvb_comp.csv
+            grep -E -e "^$id_centrale+;-;[^-]+;[^-]+;-;-;[^-]+;-" -e "^$id_centrale+;-;-;[^-]+;[^-]+;-;-;[^-]" -e "^$id_centrale+;-;-;[^-]+;-;[^-]+;-;[^-]" "$chemin_fichier" | cut -d ';' -f 4,7,8 | tr "-" "0" >> /workspaces/Projet-C-Wire/tmp/hvb_comp.csv
+        fi
+    fi
+}
+tri_fichier(){
+    if [[ $nb_args -eq 3 ]]; then
+        trier_fichier_3_parametre
+    elif [[ $nb_args -eq 4 ]]; then
+        trier_fichier_4_parametre
+    else
+        echo "Erreur dans le programme"
+        exit 1
+    fi
+}
+tri_fichier
 
-grep -E -e "^[^-]+;[^-]+;-;-;-;-;[^-]+;-" -e "^[^-]+;[^-]+;-;-;[^-]+;-;-;[^-]" "$chemin_fichier" | cut -d ';' -f 2,7,8 | tr "-" "0" >> /workspaces/Projet-C-Wire/tmp/hvb_comp.csv
