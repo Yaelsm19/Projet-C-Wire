@@ -59,10 +59,22 @@ verif_tout_arguments(){
 }
 nb_args=$#
 verification_demande_aide "$@"
-chemin_fichier=$1
+chemin_fichier="$1"
 type_station=$2
 type_conso=$3
 id_centrale=$4
 verif_tout_arguments
+verifier_presence_dossier(){
+    if [[ ! -d "tmp" ]]; then
+        mkdir tmp
+    else
+        rm -r tmp/*
+    fi
+    if [[ ! -d "graphs" ]]; then
+        mkdir graphs
+    fi
+}
+verifier_presence_dossier
+#(head -n 1 "$chemin_fichier" && grep "1" "$chemin_fichier")
 
-
+grep -E -e "^[^-]+;[^-]+;-;-;-;-;[^-]+;-" -e "^[^-]+;[^-]+;-;-;[^-]+;-;-;[^-]" "$chemin_fichier" | cut -d ';' -f 2,7,8 >> /workspaces/Projet-C-Wire/tmp/hvb_comp.csv
