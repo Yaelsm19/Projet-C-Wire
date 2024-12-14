@@ -100,8 +100,8 @@ trier_fichier_3_parametre(){
         elif [[ "$type_conso" == "all" ]]; then
             head -n 1 "$chemin_fichier" | cut -d ';' -f 4,7,8 >> /workspaces/Projet-C-Wire/tmp/lv_all.csv
             grep -E -e "^[^-]+;-;[^-]+;[^-]+;-;-;[^-]+;-" -e "^[^-]+;-;-;[^-]+;[^-]+;-;-;[^-]" -e "^[^-]+;-;-;[^-]+;-;[^-]+;-;[^-]" "$chemin_fichier" | cut -d ';' -f 4,7,8 | tr "-" "0" >> /workspaces/Projet-C-Wire/tmp/tmp_lv_all.csv
-            fichier_finale = "/workspaces/Projet-C-Wire/tmp/lv_all.csv"
-            fichier_tmp = "/workspaces/Projet-C-Wire/tmp/tmp_lv_all.csv"
+            fichier_finale="/workspaces/Projet-C-Wire/tmp/lv_all.csv"
+            fichier_tmp="/workspaces/Projet-C-Wire/tmp/tmp_lv_all.csv"
         fi
     fi
 }

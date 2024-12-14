@@ -160,7 +160,13 @@ pArbre ajout_consommation_noeud(pArbre a, long consommation, int id_noeud){
     return a;
 }
 
-
+void ecrire(pArbre a, FILE* fichier2){
+    if(a!=NULL){
+        ecrire(a->gauche, fichier2);
+        fprintf(fichier2, "%d;%ld;%ld\n", a->station.id_station, a->station.capacite, a->station.somme_conso);
+        ecrire(a->droit, fichier2);
+    }
+}
 int main(int argc, char* argv[]){
      if (argc < 2) {
         printf("Il n'y a pas de fichier en argument.\n");
@@ -177,7 +183,6 @@ int main(int argc, char* argv[]){
     pArbre a = NULL;
     int h;
     while(fscanf(fichier, "%d;%ld;%ld", &id, &capacite, &consommation) != EOF){
-        printf("%ld\n", consommation);
         if(consommation == 0){
             a = insert_AVL(a, id, capacite, &h);
         }
@@ -185,5 +190,7 @@ int main(int argc, char* argv[]){
             a = ajout_consommation_noeud(a, consommation, id);
         }
     }
-    afficher_AVL(a);
+    FILE* fichier2 = fopen(argv [2], "a+");
+    ecrire(a, fichier2);
+    fclose(fichier2);
 }
