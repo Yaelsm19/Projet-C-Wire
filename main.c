@@ -142,5 +142,14 @@ void afficher_AVL(pArbre a){
     }
 }
 int main(int argc, char* argv){
+    pArbre a = NULL;
+    int h = 0;
+    a = insert_AVL(a, 2, 23, &h);
+    a = insert_AVL(a, 3, 16, &h);
+    a = insert_AVL(a, 4, 13, &h);
+    a = insert_AVL(a, 5, 13, &h);
+    a = insert_AVL(a, 6, 13, &h);
+    a = insert_AVL(a, 7, 13, &h);
+    afficher_AVL(a);
     
 }
