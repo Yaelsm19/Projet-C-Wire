@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 typedef struct station{
     int id_station;
@@ -137,19 +138,34 @@ void afficher_station(Station station){
 void afficher_AVL(pArbre a){
     if(a!=NULL){
         afficher_station(a->station);
-        afficher_AVL(a->droit);
         afficher_AVL(a->gauche);
+        afficher_AVL(a->droit);
     }
 }
-int main(int argc, char* argv){
-    pArbre a = NULL;
+
+pArbre ajout_consommation_noeud(pArbre a, int consommation, int id_noeud){
+    if(a == NULL){
+        printf("erreur lors du code");
+        exit(1);
+    }
+    else if(id_noeud < a->station.id_station){
+        a->gauche = ajout_consommation_noeud(a->gauche, consommation, id_noeud);
+    }
+    else if(id_noeud < a->station.somme_conso){
+        a->droit = ajout_consommation_noeud(a->droit, consommation, id_noeud);
+    }
+    else{
+        a->station.somme_conso = a->station.somme_conso + consommation;
+    }
+    return a;
+}
+
+
+int main(){
     int h = 0;
+    pArbre a = NULL;
     a = insert_AVL(a, 2, 23, &h);
     a = insert_AVL(a, 3, 16, &h);
-    a = insert_AVL(a, 4, 13, &h);
-    a = insert_AVL(a, 5, 13, &h);
-    a = insert_AVL(a, 6, 13, &h);
-    a = insert_AVL(a, 7, 13, &h);
+    a = insert_AVL(a, 4, 37, &h);
     afficher_AVL(a);
-    
 }
