@@ -4,8 +4,8 @@
 
 typedef struct station{
     int id_station;
-    int capacite;
-    int somme_conso;
+    long capacite;
+    long somme_conso;
 }Station;
 
 typedef struct arbre{
@@ -17,7 +17,7 @@ typedef struct arbre{
 
 typedef Arbre* pArbre;
 
-pArbre creer_arbre(int id, int capa){
+pArbre creer_arbre(int id, long capa){
     pArbre nouveau = malloc(sizeof(Arbre));
     if(nouveau==NULL){
         printf("Erreur lors de l'allocation mémoire");
@@ -101,7 +101,7 @@ pArbre equilibrer_AVL(pArbre a){
     return a;
 }
 
-pArbre insert_AVL(pArbre a, int id, int capa, int* h){
+pArbre insert_AVL(pArbre a, int id, long capa, int* h){
     if(a==NULL){
         *h = 1;
         return creer_arbre(id, capa);
@@ -132,18 +132,18 @@ pArbre insert_AVL(pArbre a, int id, int capa, int* h){
 
 void afficher_station(Station station){
     printf("\n");
-    printf("id : %d, capacite : %d, consommation : %d", station.id_station, station.capacite, station.somme_conso);
+    printf("id : %d, capacite : %ld, consommation : %ld", station.id_station, station.capacite, station.somme_conso);
 }
 
 void afficher_AVL(pArbre a){
     if(a!=NULL){
-        afficher_station(a->station);
         afficher_AVL(a->gauche);
+        afficher_station(a->station);
         afficher_AVL(a->droit);
     }
 }
 
-pArbre ajout_consommation_noeud(pArbre a, int consommation, int id_noeud){
+pArbre ajout_consommation_noeud(pArbre a, long consommation, int id_noeud){
     if(a == NULL){
         printf("erreur lors du code");
         exit(1);
@@ -151,7 +151,7 @@ pArbre ajout_consommation_noeud(pArbre a, int consommation, int id_noeud){
     else if(id_noeud < a->station.id_station){
         a->gauche = ajout_consommation_noeud(a->gauche, consommation, id_noeud);
     }
-    else if(id_noeud < a->station.somme_conso){
+    else if(id_noeud > a->station.id_station){
         a->droit = ajout_consommation_noeud(a->droit, consommation, id_noeud);
     }
     else{
@@ -161,11 +161,29 @@ pArbre ajout_consommation_noeud(pArbre a, int consommation, int id_noeud){
 }
 
 
-int main(){
-    int h = 0;
+int main(int argc, char* argv[]){
+     if (argc < 2) {
+        printf("Il n'y a pas de fichier en argument.\n");
+        return 1;
+    }
+    FILE * fichier = fopen(argv [1], "r");
+    if (fichier == NULL) {
+        printf("Impossible d'ouvrir le fichier");
+        return 1;
+    }
+    int id;
+    long capacite;
+    long consommation;
     pArbre a = NULL;
-    a = insert_AVL(a, 2, 23, &h);
-    a = insert_AVL(a, 3, 16, &h);
-    a = insert_AVL(a, 4, 37, &h);
+    int h;
+    while(fscanf(fichier, "%d;%ld;%ld", &id, &capacite, &consommation) != EOF){
+        printf("%ld\n", consommation);
+        if(consommation == 0){
+            a = insert_AVL(a, id, capacite, &h);
+        }
+        else{
+            a = ajout_consommation_noeud(a, consommation, id);
+        }
+    }
     afficher_AVL(a);
 }
