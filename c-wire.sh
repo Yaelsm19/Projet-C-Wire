@@ -1,3 +1,4 @@
+start_time=$(date +%s)
 afficher_aide() {
     echo "Voici les différents paramètres que vous pouvez remplir"
     echo "parametre 1 : chemin du fichier d'entrée"
@@ -57,14 +58,7 @@ verif_tout_arguments(){
     fi
 
 }
-nb_args=$#
-verification_demande_aide "$@"
-chemin_fichier="$1"
-type_station=$2
-type_conso=$3
-id_centrale=$4
-verif_tout_arguments
-verifier_presence_dossier(){
+verif_presence_dossier(){
     if [[ ! -d "tmp" ]]; then
         mkdir tmp
     else
@@ -74,7 +68,6 @@ verifier_presence_dossier(){
         mkdir graphs
     fi
 }
-verifier_presence_dossier
 trier_fichier_3_parametre(){
     if [[ "$type_station" == "hvb" ]]; then
         fichier_final="/workspaces/Projet-C-Wire/tmp/hvb_comp.csv"
@@ -100,6 +93,8 @@ trier_fichier_3_parametre(){
         elif [[ "$type_conso" == "all" ]]; then
             fichier_final="/workspaces/Projet-C-Wire/tmp/lv_all.csv"
             fichier_tmp="/workspaces/Projet-C-Wire/tmp/tmp_lv_all.csv"
+            fichier_lv_min_max="/workspaces/Projet-C-Wire/tmp/lv_all_minmax.csv"
+            head -n 1 "$chemin_fichier" | cut -d ';' -f 4,7,8 >> "$fichier_lv_min_max"
             head -n 1 "$chemin_fichier" | cut -d ';' -f 4,7,8 >> "$fichier_final"
             grep -E -e "^[^-]+;-;[^-]+;[^-]+;-;-;[^-]+;-" -e "^[^-]+;-;-;[^-]+;[^-]+;-;-;[^-]" -e "^[^-]+;-;-;[^-]+;-;[^-]+;-;[^-]" "$chemin_fichier" | cut -d ';' -f 4,7,8 | tr "-" "0" >> "$fichier_tmp"
         fi
@@ -130,6 +125,8 @@ trier_fichier_4_parametre(){
         elif [[ "$type_conso" == "all" ]]; then
             fichier_final="/workspaces/Projet-C-Wire/tmp/lv_all.csv"
             fichier_tmp="/workspaces/Projet-C-Wire/tmp/tmp_lv_all.csv"
+            fichier_lv_min_max="/workspaces/Projet-C-Wire/tmp/lv_all_minmax.csv"
+            head -n 1 "$chemin_fichier" | cut -d ';' -f 4,7,8 >> "$fichier_lv_min_max"
             head -n 1 "$chemin_fichier" | cut -d ';' -f 4,7,8 >> "$fichier_final"
             grep -E -e "^$id_centrale+;-;[^-]+;[^-]+;-;-;[^-]+;-" -e "^$id_centrale+;-;-;[^-]+;[^-]+;-;-;[^-]" -e "^$id_centrale+;-;-;[^-]+;-;[^-]+;-;[^-]" "$chemin_fichier" | cut -d ';' -f 4,7,8 | tr "-" "0" >> "$fichier_tmp"
         fi
@@ -146,6 +143,23 @@ tri_fichier(){
     fi
     sort -t';' -k3 -n "$fichier_tmp" -o "$fichier_tmp"
 }
+nb_args=$#
+verification_demande_aide "$@"
+chemin_fichier="$1"
+type_station=$2
+type_conso=$3
+id_centrale=$4
+verif_tout_arguments
+verif_presence_dossier
 tri_fichier
 
 make run ARGS="$fichier_tmp $fichier_final"
+
+if [[ "$type_conso"=="lv" && "$type_conso"=="all" ]]; then
+    if [[ "$(wc -l < "$fichier_final")" -lt 21 ]]; then
+        cp "$fichier_final" "$fichier_lv_min_max"
+    else
+        sort -t';' -k3 -n "$fichier_final" >> "$fichier_lv_min_max"
+        (head -n 10 "$fichier" && tail -n 10 "$fichier" | tail -n +11) >> "$fichier_lv_min_max"
+    fi
+fi
