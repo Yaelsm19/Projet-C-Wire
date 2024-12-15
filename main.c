@@ -130,19 +130,6 @@ pArbre insert_AVL(pArbre a, int id, long capa, int* h){
     return a;
 }
 
-void afficher_station(Station station){
-    printf("\n");
-    printf("id : %d, capacite : %ld, consommation : %ld", station.id_station, station.capacite, station.somme_conso);
-}
-
-void afficher_AVL(pArbre a){
-    if(a!=NULL){
-        afficher_AVL(a->gauche);
-        afficher_station(a->station);
-        afficher_AVL(a->droit);
-    }
-}
-
 pArbre ajout_consommation_noeud(pArbre a, long consommation, int id_noeud){
     if(a == NULL){
         printf("erreur lors du code");
@@ -167,21 +154,22 @@ void ecrire(pArbre a, FILE* fichier2){
         ecrire(a->droit, fichier2);
     }
 }
-int main(int argc, char* argv[]){
-     if (argc < 2) {
-        printf("Il n'y a pas de fichier en argument.\n");
-        return 1;
+
+int verifier_nb_argument(int argc){
+    if (argc != 3){
+        printf("Il n'y a pas le bon nombre d'argument");
+        return 0;
     }
-    FILE * fichier = fopen(argv [1], "r");
-    if (fichier == NULL) {
-        printf("Impossible d'ouvrir le fichier");
-        return 1;
-    }
+    return 1;
+
+}
+
+pArbre recuperer_fichier_tmp(FILE* fichier){
     int id;
     long capacite;
     long consommation;
+    int h = 0;
     pArbre a = NULL;
-    int h;
     while(fscanf(fichier, "%d;%ld;%ld", &id, &capacite, &consommation) != EOF){
         if(consommation == 0){
             a = insert_AVL(a, id, capacite, &h);
@@ -190,7 +178,25 @@ int main(int argc, char* argv[]){
             a = ajout_consommation_noeud(a, consommation, id);
         }
     }
-    FILE* fichier2 = fopen(argv [2], "a+");
-    ecrire(a, fichier2);
-    fclose(fichier2);
+    return a;
+}
+
+void traitement_total(FILE* fichier_tmp, FILE* fichier_final){
+    pArbre a = NULL;
+    a = recuperer_fichier_tmp(fichier_tmp);
+    ecrire(a, fichier_final);
+}
+
+int main(int argc, char* argv[]){
+    if(!verifier_nb_argument(argc)){
+        exit (1);
+    }
+    FILE* fichier_tmp = fopen(argv [1], "r");
+    FILE* fichier_final = fopen(argv [2], "a+");
+    if((fichier_tmp == NULL) || (fichier_final == NULL)){
+        printf("Problème lors de l'ouverture des fichiers");
+    }
+    traitement_total(fichier_tmp, fichier_final);
+    fclose(fichier_final);
+    fclose(fichier_tmp);
 }
