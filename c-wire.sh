@@ -1,4 +1,4 @@
-start_time=$(date +%s)
+start=$(date +%s)
 afficher_aide() {
     echo "Voici les différents paramètres que vous pouvez remplir"
     echo "parametre 1 : chemin du fichier d'entrée"
@@ -155,11 +155,15 @@ tri_fichier
 
 make run ARGS="$fichier_tmp $fichier_final"
 
-if [[ "$type_conso"=="lv" && "$type_conso"=="all" ]]; then
-    if [[ "$(wc -l < "$fichier_final")" -lt 21 ]]; then
-        cp "$fichier_final" "$fichier_lv_min_max"
-    else
-        sort -t';' -k3 -n "$fichier_final" >> "$fichier_lv_min_max"
-        (head -n 10 "$fichier" && tail -n 10 "$fichier" | tail -n +11) >> "$fichier_lv_min_max"
-    fi
-fi
+#if [[ "$type_conso"=="lv" && "$type_conso"=="all" ]]; then
+    #if [[ "$(wc -l < "$fichier_final")" -lt 21 ]]; then
+    #    cp "$fichier_final" "$fichier_lv_min_max"
+   # else
+  #      sort -t';' -k3 -n "$fichier_final" >> "$fichier_lv_min_max"
+ #   fi
+#fi
+end=$(date +%s)
+
+# Calculer et afficher le temps écoulé
+execution_time=$((end - start))
+echo "Le programme a pris $execution_time secondes à s'exécuter."
