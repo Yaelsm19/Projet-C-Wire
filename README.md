@@ -201,6 +201,9 @@ L'arbre binaire de recherche est structuré de manière suivante :
 #### Fonction : `ajout_consommation_noeud()` 
 - Ajoute la consommation à une station existante identifiée par son `id_noeud` . Si le noeud n'existe pas, il parcourt l'arbre pour l'ajouter ou met à jour la consommation de la station correspondante.
 
+#### Fonction : `ecrire()` 
+
+#### Fonction : `verifier_nb_argument()` 
 --- 
 
 ### Structure des Fichiers
