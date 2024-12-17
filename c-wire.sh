@@ -6,6 +6,7 @@ afficher_aide() {
     echo "parametre 3 : type de consommateur : comp ou indiv ou all"
     echo "combinaisons interdites : hvb all ou hdv indiv ou hva all hva indiv"
     echo "parametre 4 : Optionel : identifiant de centrale : 1, 2, 3, 4 ou 5"
+    echo "Le programme a pris $(( $(date +%s) - start )) secondes à s'exécuter."
 }
 verification_demande_aide(){
     for param in "$@"; do
@@ -53,6 +54,7 @@ verif_tout_arguments(){
     verif_3arguments
         if [[ "$id_centrale" != 1 && "$id_centrale" != 2 && "$id_centrale" != 3 && "$id_centrale" != 4 && "$id_centrale" != 5 ]]; then
             echo "Le quatrième paramètre n'est pas bon"
+            afficher_aide
             exit 1
         fi
     fi
@@ -142,7 +144,6 @@ tri_fichier(){
     fi
     sort -t';' -k3 -n "$fichier_tmp" -o "$fichier_tmp"
 }
-
 creation_lv_min_max(){
     if [[ "$type_station" == "lv" && "$type_conso" == "all" ]]; then
         if [[ "$(wc -l < "$fichier_final")" -lt 22 ]]; then
