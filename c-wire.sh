@@ -168,4 +168,27 @@ verif_presence_dossier
 tri_fichier
 make run ARGS="$fichier_tmp $fichier_final"
 creation_lv_min_max
+set terminal pngcairo size 800,600 enhanced font 'Verdana,10'
+set output 'graphique.png'
+
+# Style pour graphique en barres
+set style data histograms
+set style fill solid 0.8 border -1
+set boxwidth 0.9
+
+# Titre et axes
+set xlabel "Postes LV"
+set ylabel "Consommation"
+set title "Consommation des postes LV (Top 10 chargés et 10 moins chargés)"
+
+# Spécifie le séparateur des données
+set datafile separator ";"
+
+# Palette de couleurs
+set style line 1 lc rgb "green"  # Vert pour les marges
+set style line 2 lc rgb "red"    # Rouge pour les surcharges
+
+# Lecture des données et couleurs conditionnelles
+gnuplot -e "plot '$fichier_lv_min_max' using 3:xtic(1) title 'Consommation en marge' linecolor rgb 'green' every ::0::9, \
+             '' using 3:xtic(1) title 'Consommation en surcharge' linecolor rgb 'red' every ::10::19"
 echo "Le programme a pris $(( $(date +%s) - start )) secondes à s'exécuter."
