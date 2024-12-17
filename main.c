@@ -152,6 +152,7 @@ void ecrire(pArbre a, FILE* fichier2){
         ecrire(a->gauche, fichier2);
         fprintf(fichier2, "%d;%ld;%ld\n", a->station.id_station, a->station.capacite, a->station.somme_conso);
         ecrire(a->droit, fichier2);
+        free(a);
     }
 }
 

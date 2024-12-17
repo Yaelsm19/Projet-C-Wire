@@ -94,7 +94,6 @@ trier_fichier_3_parametre(){
             fichier_final="/workspaces/Projet-C-Wire/tmp/lv_all.csv"
             fichier_tmp="/workspaces/Projet-C-Wire/tmp/tmp_lv_all.csv"
             fichier_lv_min_max="/workspaces/Projet-C-Wire/tmp/lv_all_minmax.csv"
-            head -n 1 "$chemin_fichier" | cut -d ';' -f 4,7,8 >> "$fichier_lv_min_max"
             head -n 1 "$chemin_fichier" | cut -d ';' -f 4,7,8 >> "$fichier_final"
             grep -E -e "^[^-]+;-;[^-]+;[^-]+;-;-;[^-]+;-" -e "^[^-]+;-;-;[^-]+;[^-]+;-;-;[^-]" -e "^[^-]+;-;-;[^-]+;-;[^-]+;-;[^-]" "$chemin_fichier" | cut -d ';' -f 4,7,8 | tr "-" "0" >> "$fichier_tmp"
         fi
@@ -143,6 +142,20 @@ tri_fichier(){
     fi
     sort -t';' -k3 -n "$fichier_tmp" -o "$fichier_tmp"
 }
+
+creation_lv_min_max(){
+    if [[ "$type_station" == "lv" && "$type_conso" == "all" ]]; then
+        if [[ "$(wc -l < "$fichier_final")" -lt 22 ]]; then
+            { head -n 1 "$fichier_final"; tail -n +2 "$fichier_final" | sort -t';' -k3 -n -r; } > "$fichier_lv_min_max"
+        else
+            { head -n 1 "$fichier_final"; tail -n +2 "$fichier_final" | sort -t';' -k3 -n -r; } > "$fichier_lv_min_max"
+            fichier_tmp_lv_min_max="/workspaces/Projet-C-Wire/tmp/tmp_lv_min_max"
+            { head -n 11 "$fichier_lv_min_max"; tail -n 10 "$fichier_lv_min_max"; } > "$fichier_tmp_lv_min_max"
+            mv "$fichier_tmp_lv_min_max" "$fichier_lv_min_max"
+        fi
+    fi
+}
+
 nb_args=$#
 verification_demande_aide "$@"
 chemin_fichier="$1"
@@ -152,18 +165,6 @@ id_centrale=$4
 verif_tout_arguments
 verif_presence_dossier
 tri_fichier
-
 make run ARGS="$fichier_tmp $fichier_final"
-
-#if [[ "$type_conso"=="lv" && "$type_conso"=="all" ]]; then
-    #if [[ "$(wc -l < "$fichier_final")" -lt 21 ]]; then
-    #    cp "$fichier_final" "$fichier_lv_min_max"
-   # else
-  #      sort -t';' -k3 -n "$fichier_final" >> "$fichier_lv_min_max"
- #   fi
-#fi
-end=$(date +%s)
-
-# Calculer et afficher le temps écoulé
-execution_time=$((end - start))
-echo "Le programme a pris $execution_time secondes à s'exécuter."
+creation_lv_min_max
+echo "Le programme a pris $(( $(date +%s) - start )) secondes à s'exécuter."
