@@ -48,14 +48,26 @@ Le programme accepte entre 3 et 4 arguments :
 #### Exécution du programme
 
 ```bash
-./nom_du_script.sh chemin_fichier type_station type_conso [id_centrale]
+./c-wire.sh chemin_fichier type_station type_conso [id_centrale]
 ```
 
 #### Demander l’aide
 
 ```bash
-./nom_du_script.sh -h
+./c-wire.sh -h
 ```
+
+### Exemple d’Exécution
+
+1. Avec 3 paramètres :
+   ```bash
+   ./c-wire.sh "/workspaces/Projet-C-Wire/c-wire_v25.dat" hvb comp
+   ```
+
+2. Avec 4 paramètres :
+   ```bash
+   ./c-wire.sh "/workspaces/Projet-C-Wire/c-wire_v25.dat" lv indiv 1
+   ```
 
 ---
 
@@ -64,6 +76,12 @@ Le programme accepte entre 3 et 4 arguments :
 #### Fonction : `afficher_aide()`
 - Affiche une aide détaillée sur la syntaxe de la commande et les paramètres disponibles.
 - Liste les combinaisons interdites pour éviter les erreurs courantes.
+- Exemple de sortie :
+  ```
+  Utilisation : ./c-wire.sh c-wire_v25.dat type_station type_consommateur [id_centrale]
+  - type_station : hvb, hva, lv
+  - type_consommateur : comp, indiv, all
+  ```
 
 #### Fonction : `verification_demande_aide()`
 - Vérifie si l'option `-h` est présente parmi les arguments.
@@ -85,11 +103,20 @@ Le programme accepte entre 3 et 4 arguments :
 - Vérifie la présence des dossiers `tmp` et `graphs` nécessaires au programme.
 - Supprime les dossiers existants pour éviter les conflits avec des fichiers temporaires précédents.
 - Crée les dossiers s'ils n'existent pas.
+- Exemple de commande utilisée :
+  ```bash
+  rm -rf tmp graphs
+  mkdir tmp graphs
+  ```
 
 #### Fonction : `trier_fichier_3_parametre()`
 - Trie les lignes du fichier d'entrée en fonction des trois premiers paramètres.
 - Utilise des outils comme `grep` et `cut` pour extraire les données pertinentes.
 - Enregistre les données triées dans des fichiers spécifiques dans le dossier `tmp/`.
+- Exemple :
+  ```bash
+  grep "hvb;comp" "/workspaces/Projet-C-Wire/c-wire_v25.dat" > tmp/hvb_comp.dat
+  ```
 
 #### Fonction : `trier_fichier_4_parametre()`
 - Trie les lignes du fichier d'entrée en fonction des quatre paramètres (y compris l'identifiant de centrale).
@@ -217,4 +244,3 @@ Le programme ne dépend pas de fichiers externes, tout est géré en mémoire vi
 Le programme signale les erreurs suivantes :
 - **Erreur d'allocation mémoire** : Si l'allocation mémoire pour un nouvel arbre échoue.
 - **Erreur lors de l'ajout de consommation** : Si une station n'est pas trouvée lors de l'ajout de consommation.
-
