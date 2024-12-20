@@ -1,5 +1,5 @@
 # Nom de l'exécutable
-EXEC = /workspaces/Projet-C-Wire/Code\ C/main.exe
+EXEC = main.exe
 
 # Fichiers source
 SRC = /workspaces/Projet-C-Wire/Code\ C/main.c
