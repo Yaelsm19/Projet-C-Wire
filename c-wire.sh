@@ -156,9 +156,8 @@ creation_lv_min_max(){
 
             
         else
-            fichier_tmp_2lv_min_max="/workspaces/Projet-C-Wire/tmp/tmp_lv_all_minmax.csv"
             { head -n 1 "$fichier_final"; tail -n +2 "$fichier_final" | sort -t';' -k3 -n -r; } > "$fichier_lv_min_max"
-            { head -n 4 "$fichier_lv_min_max"; tail -n 4 "$fichier_lv_min_max"; } > "$fichier_tmp_lv_min_max"
+            { head -n 6 "$fichier_lv_min_max"; tail -n 5 "$fichier_lv_min_max"; } > "$fichier_tmp_lv_min_max"
             awk -F';' '{diff = $3 - $2; abs = (diff < 0) ? -diff : diff; print $0, abs}' OFS=';' "$fichier_tmp_lv_min_max" > "$fichier_lv_min_max"
             sort -t ";" -k4 -n "$fichier_lv_min_max" > "$fichier_tmp_lv_min_max"
             cut -d ';' -f 1,2,3 "$fichier_tmp_lv_min_max" > "$fichier_lv_min_max"
@@ -178,26 +177,6 @@ verif_tout_arguments
 verif_presence_dossier
 tri_fichier
 make run ARGS="$fichier_tmp $fichier_final"
-sort -t ';' -k2 -n "$fichier_final" -o "$fichier_final"
+sort -t ':' -k2 -n "$fichier_final" -o "$fichier_final"
 creation_lv_min_max
-set terminal pngcairo size 800,600 enhanced font 'Verdana,10'
-set output 'graphique.png'
-
-# Style pour graphique en barres
-set style data histograms
-set style fill solid 0.8 border -1
-set boxwidth 0.9
-
-# Titre et axes
-set xlabel "Postes LV"
-set ylabel "Consommation"
-set title "Consommation des postes LV (Top 10 chargés et 10 moins chargés)"
-
-# Spécifie le séparateur des données
-set datafile separator ";"
-
-# Palette de couleurs
-set style line 1 lc rgb "green"  # Vert pour les marges
-set style line 2 lc rgb "red"    # Rouge pour les surcharges
-
 echo "Le programme a pris $(( $(date +%s) - start )) secondes à s'exécuter."

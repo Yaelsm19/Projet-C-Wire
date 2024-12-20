@@ -150,7 +150,7 @@ pArbre ajout_consommation_noeud(pArbre a, long consommation, int id_noeud){  // 
 void ecrire(pArbre a, FILE* fichier2){  // fonction pour écrire les données d'un arbre dans un fichier
     if(a!=NULL){  // / vérifie si l'arbre n'est pas vide
         ecrire(a->gauche, fichier2);  // appel récursif pour parcourir le sous-arbre gauche
-        fprintf(fichier2, "%d;%ld;%ld\n", a->station.id_station, a->station.capacite, a->station.somme_conso);  // écrit les informations du nœud courant dans le fichier (id, capacité, consommation)
+        fprintf(fichier2, "%d:%ld:%ld\n", a->station.id_station, a->station.capacite, a->station.somme_conso);  // écrit les informations du nœud courant dans le fichier (id, capacité, consommation)
         ecrire(a->droit, fichier2);  // appel récursif pour parcourir le sous-arbre droit
         free(a);  // libère la mémoire allouée pour le nœud courant
     }
