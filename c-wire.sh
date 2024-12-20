@@ -148,22 +148,19 @@ creation_lv_min_max(){
     if [[ "$type_station" == "lv" && "$type_conso" == "all" ]]; then
         fichier_tmp_lv_min_max="/workspaces/Projet-C-Wire/tmp/tmp_lv_all_minmax.csv"
         if [[ "$(wc -l < "$fichier_final")" -lt 10 ]]; then
-            awk -F';' '{diff = $3 - $2; abs = (diff < 0) ? -diff : diff; print $0, abs}' OFS=';' "$fichier_final" > "$fichier_tmp_lv_min_max"
-            sort -t ";" -k4 -n "$fichier_tmp_lv_min_max" >> "$fichier_lv_min_max"
-            cut -d ';' -f 1,2,3 "$fichier_lv_min_max" > "/workspaces/Projet-C-Wire/tmp/tmp2_lv_all_minmax.csv"
-            mv "/workspaces/Projet-C-Wire/tmp/tmp2_lv_all_minmax.csv" "$fichier_lv_min_max"
-            rm "/workspaces/Projet-C-Wire/tmp/tmp_lv_all_minmax.csv"
+            awk -F':' '{diff = $3 - $2; abs = (diff < 0) ? -diff : diff; print $0, abs}' OFS=':' "$fichier_final" > "$fichier_tmp_lv_min_max"
+            sort -t ":" -k4 -n "$fichier_tmp_lv_min_max" -o "$fichier_tmp_lv_min_max"
+            cut -d ':' -f 1,2,3 "$fichier_tmp_lv_min_max" > $fichier_lv_min_max
 
             
         else
             { head -n 1 "$fichier_final"; tail -n +2 "$fichier_final" | sort -t';' -k3 -n -r; } > "$fichier_lv_min_max"
             { head -n 6 "$fichier_lv_min_max"; tail -n 5 "$fichier_lv_min_max"; } > "$fichier_tmp_lv_min_max"
-            awk -F';' '{diff = $3 - $2; abs = (diff < 0) ? -diff : diff; print $0, abs}' OFS=';' "$fichier_tmp_lv_min_max" > "$fichier_lv_min_max"
-            sort -t ";" -k4 -n "$fichier_lv_min_max" > "$fichier_tmp_lv_min_max"
-            cut -d ';' -f 1,2,3 "$fichier_tmp_lv_min_max" > "$fichier_lv_min_max"
-            rm "$fichier_tmp_lv_min_max"
-            
+            awk -F':' '{diff = $3 - $2; abs = (diff < 0) ? -diff : diff; print $0, abs}' OFS=':' "$fichier_tmp_lv_min_max" > "$fichier_lv_min_max"
+            sort -t ":" -k4 -n "$fichier_lv_min_max" > "$fichier_tmp_lv_min_max"
+            cut -d ':' -f 1,2,3 "$fichier_tmp_lv_min_max" > "$fichier_lv_min_max"     
         fi
+        rm "$fichier_tmp_lv_min_max"
     fi
 }
 
@@ -176,6 +173,7 @@ id_centrale=$4
 verif_tout_arguments
 verif_presence_dossier
 tri_fichier
+sed -i 's/;/:/g' "$fichier_final"
 make run ARGS="$fichier_tmp $fichier_final"
 sort -t ':' -k2 -n "$fichier_final" -o "$fichier_final"
 creation_lv_min_max
