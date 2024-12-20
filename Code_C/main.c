@@ -47,11 +47,11 @@ int max(int a, int b){  // fonction calcul du maximum : renvoie le maximum entre
 
 pArbre rotation_droite(pArbre a){  // fonction pour faire une rotation à droite
     pArbre pivot = a->gauche;  // le pivot devient le fils gauche du nœud courant
-    a->gauche = pivot->droit;  // le fils gauche devient le pivot du fils droit
-    pivot->droit = a;  // le pivot du fils droit devient a
+    a->gauche = pivot->droit;  // le fils gauche devient le fils droit du pivot
+    pivot->droit = a;  // fils droit du pivot devient a
     int equi_a = a->equilibre;  // création d'une variable égale à l'équilibre de a
     int equi_p = pivot->equilibre;  // création d'une variable égale à l'équilibre du pivot
-    a->equilibre = equi_a - min(equi_p, 0) + 1;  // calcul du nouvel equilibre de a
+    a->equilibre = equi_a - min(equi_p, 0) + 1;  // met à jour le facteur d'équilibre de a
     pivot->equilibre = max(max(equi_a+2, equi_a + equi_p +2), equi_p +1);  // met à jour le facteur d'équilibre du pivot
     a = pivot;  // a  est égal au pivot
     return a;  // retourner l'arbre 
@@ -59,11 +59,11 @@ pArbre rotation_droite(pArbre a){  // fonction pour faire une rotation à droite
 
 pArbre rotation_gauche(pArbre a){  // fonction pour faire une rotation à gauche 
     pArbre pivot = a->droit;  // le pivot devient le fils droit du nœud courant
-    a->droit = pivot->gauche;  // le fils droit devient le pivot du fils gauche
-    pivot->gauche = a;  // le pivot du fils droit devient a
+    a->droit = pivot->gauche;  // le fils droit devient le fils gauche du pivot
+    pivot->gauche = a;  // le fils gauche du pivot devient a
     int equi_a = a->equilibre;  // création d'une variable egale à l'equilibre du pivot
     int equi_p = pivot->equilibre;  // création d'une variable egale à l'equilibre du pivot
-    a->equilibre = equi_a - max(equi_p, 0) -1;  // calcul du nouvel equilibre de a
+    a->equilibre = equi_a - max(equi_p, 0) -1;  // met à jour le facteur d'équilibre du a
     pivot->equilibre = min(min(equi_a-2, equi_a + equi_p -2), equi_p-1);  // met à jour le facteur d'équilibre du pivot
     a = pivot;  // a est égal au pivot 
     return a;  // retourner l'arbre
@@ -150,7 +150,7 @@ pArbre ajout_consommation_noeud(pArbre a, long consommation, int id_noeud){  // 
 void ecrire(pArbre a, FILE* fichier2){  // fonction pour écrire les données d'un arbre dans un fichier
     if(a!=NULL){  // / vérifie si l'arbre n'est pas vide
         ecrire(a->gauche, fichier2);  // appel récursif pour parcourir le sous-arbre gauche
-        fprintf(fichier2, "%d:%ld:%ld\n", a->station.id_station, a->station.capacite, a->station.somme_conso);  // écrit les informations du nœud courant dans le fichier (id, capacité, consommation)
+        fprintf(fichier2, "%d:%ld:%ld\n", a->station.id_station, a->station.capacite, a->station.somme_conso);  // écrit les informations du nœud courant dans le fichier (id:capacité:consommation)
         ecrire(a->droit, fichier2);  // appel récursif pour parcourir le sous-arbre droit
         free(a);  // libère la mémoire allouée pour le nœud courant
     }
@@ -165,14 +165,14 @@ int verifier_nb_argument(int argc){  // fonction pour vérifier si le programme 
 
 }
 
-pArbre recuperer_fichier_tmp(FILE* fichier){  // fonction pour construire un arbre AVL à partir d'un fichier temporaire
+pArbre recuperer_fichier_tmp(FILE* fichier){  // fonction pour construire un arbre AVL à partir d'un fichier
     int id;  // identifiant de la station
     long capacite;  // capacité de la station
     long consommation;  // consommation de la station 
     int h = 0;  // variable pour gérer la hauteur lors de l'insertion dans l'AVL
     pArbre a = NULL;  // initialise un arbre vide
     while(fscanf(fichier, "%d;%ld;%ld", &id, &capacite, &consommation) != EOF){  // lit une ligne du fichier jusqu'à la fin (EOF) au format id;capacité;consommation
-        if(consommation == 0){  // si la consommation est 0
+        if(consommation == 0){  // si la consommation est 0 (C'est une station)
             a = insert_AVL(a, id, capacite, &h);  // ajoute un nouveau nœud dans l'AVL
         }
         else{  // sinon
@@ -182,7 +182,7 @@ pArbre recuperer_fichier_tmp(FILE* fichier){  // fonction pour construire un arb
     return a;  // retourne l'arbre construit
 }
 
-void traitement_total(FILE* fichier_tmp, FILE* fichier_final){  // fonction pour traiter un fichier temporaire et écrire le résultat dans un fichier final
+void traitement_total(FILE* fichier_tmp, FILE* fichier_final){  // fonction pour traiter un fichier et écrire le résultat dans un fichier final
     pArbre a = NULL;  // initialise un arbre vide
     a = recuperer_fichier_tmp(fichier_tmp);  // construit l'arbre à partir du fichier temporaire
     ecrire(a, fichier_final);  // écrit les données de l'arbre dans le fichier final

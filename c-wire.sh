@@ -147,7 +147,7 @@ tri_fichier(){
 creation_lv_min_max(){
     if [[ "$type_station" == "lv" && "$type_conso" == "all" ]]; then
         fichier_tmp_lv_min_max="/workspaces/Projet-C-Wire/tmp/tmp_lv_all_minmax.csv"
-        if [[ "$(wc -l < "$fichier_final")" -lt 10 ]]; then
+        if [[ "$(wc -l < "$fichier_final")" -lt 22 ]]; then
             awk -F':' '{diff = $3 - $2; abs = (diff < 0) ? -diff : diff; print $0, abs}' OFS=':' "$fichier_final" > "$fichier_tmp_lv_min_max"
             sort -t ":" -k4 -n "$fichier_tmp_lv_min_max" -o "$fichier_tmp_lv_min_max"
             cut -d ':' -f 1,2,3 "$fichier_tmp_lv_min_max" > $fichier_lv_min_max
@@ -155,7 +155,7 @@ creation_lv_min_max(){
             
         else
             { head -n 1 "$fichier_final"; tail -n +2 "$fichier_final" | sort -t';' -k3 -n -r; } > "$fichier_lv_min_max"
-            { head -n 6 "$fichier_lv_min_max"; tail -n 5 "$fichier_lv_min_max"; } > "$fichier_tmp_lv_min_max"
+            { head -n 11 "$fichier_lv_min_max"; tail -n 10 "$fichier_lv_min_max"; } > "$fichier_tmp_lv_min_max"
             awk -F':' '{diff = $3 - $2; abs = (diff < 0) ? -diff : diff; print $0, abs}' OFS=':' "$fichier_tmp_lv_min_max" > "$fichier_lv_min_max"
             sort -t ":" -k4 -n "$fichier_lv_min_max" > "$fichier_tmp_lv_min_max"
             cut -d ':' -f 1,2,3 "$fichier_tmp_lv_min_max" > "$fichier_lv_min_max"     
