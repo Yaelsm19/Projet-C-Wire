@@ -1,8 +1,13 @@
 # Chemin complet de l'exécutable
 EXEC = /workspaces/Projet-C-Wire/Code_C/main.exe
 
-# Fichier source
-SRC = /workspaces/Projet-C-Wire/Code_C/main.c
+# Fichiers source (ajouter tous les fichiers nécessaires)
+SRC = /workspaces/Projet-C-Wire/Code_C/main.c \
+      /workspaces/Projet-C-Wire/Code_C/avl_operations.c \
+      /workspaces/Projet-C-Wire/Code_C/avl_file_operations.c
+
+# Chemins des fichiers d'en-tête (ajoutez ici si vous avez un dossier include)
+INCLUDE = -I/workspaces/Projet-C-Wire/Code_C
 
 # Compilateur et options
 CC = gcc
@@ -13,7 +18,7 @@ all: $(EXEC)
 
 # Règle pour construire l'exécutable dans le répertoire cible
 $(EXEC): $(SRC)
-	$(CC) $(CFLAGS) -o $(EXEC) $(SRC)
+	$(CC) $(CFLAGS) $(INCLUDE) -o $(EXEC) $(SRC)
 
 # Exécution avec des arguments (ARGS peut être vide ou défini lors de l'appel)
 run: all
