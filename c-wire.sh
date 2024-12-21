@@ -257,7 +257,7 @@ if [ ! -f "$data_file" ]; then
 fi
 
 # Fichier de sortie pour le graphique
-graph_output="graph_simple.png"
+graph_output="graph_colored_dynamic.png"
 
 # Génération du graphique avec GnuPlot
 gnuplot << EOF
@@ -265,7 +265,7 @@ set terminal pngcairo size 1280,720 enhanced font 'Verdana,12'
 set output "$graph_output"
 
 # Titres et axes
-set title "Graphique simple : Quantité consommée en trop" font ",14"
+set title "Graphique avec toutes les stations" font ",14"
 set xlabel "Postes LV (ID Station)" font ",12"
 set ylabel "Différence (kWh)" font ",12"
 
@@ -276,9 +276,8 @@ set style fill solid border -1
 set boxwidth 0.8
 set xtics rotate by -45
 
-# Lecture des données
-plot "< tail -n +2 gnuplot_data.txt" using 2:xtic(1) with boxes lc rgb column(3) title "Différence"
-#plot "< tail -n +2 $data_file" using 2:xtic(1) with boxes lc rgb "green" title "Différence"
+# Lecture des données avec application des couleurs
+plot "$data_file" using 2:xtic(1) with boxes lc rgb "red" title "Différence"
 EOF
 
 # Vérification du fichier graphique
@@ -290,4 +289,5 @@ else
 fi
 
 
+#plot "< tail -n +2 $data_file" using 2:xtic(1) with boxes lc rgb "green" title "Différence"
 echo "Le programme a pris $(( $(date +%s) - start )) secondes à s'exécuter."
