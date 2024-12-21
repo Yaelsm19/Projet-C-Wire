@@ -152,9 +152,8 @@ creation_lv_min_max() { #creation_lv_min_max
         fichier_tmp2_lv_min_max="/workspaces/Projet-C-Wire/tmp/tmp2_lv_all_minmax.csv" # Définit le chemin vers un fichier temporaire utilisé pour les calculs et transformations
         if [[ "$(wc -l < "$fichier_final")" -lt 22 ]]; then # Vérifie si le nombre de lignes du fichier final est inférieur ou égal à 21
             awk -F':' '{diff = $3 - $2; abs = (diff < 0) ? -diff : diff; print $0, abs}' OFS=':' "$fichier_final" > "$fichier_tmp_lv_min_max" # Ajoute une quatrième colonne avec la valeur absolue de la différence (|consommation - capacité|)
-            { head -n 1 "$fichier_tmp_lv_min_max"; tail -n +2 "$fichier_tmp_lv_min_max" | sort -t':' -k4 -n -r; } > "$fichier_lv_min_max" # Trie les lignes du fichier temporaire par la quatrième colonne (différence absolue), en ordre décroissant
-            #{ head -n 1 "$fichier_tmp_lv_min_max"; tail -n +2 "$fichier_tmp_lv_min_max" | sort -t':' -k4 -n -r; } > "$fichier_tmp2_lv_min_max" # Trie les lignes du fichier temporaire par la quatrième colonne (différence absolue), en ordre décroissant
-            #cut -d ':' -f 1,2,3 "$fichier_tmp2_lv_min_max" > "$fichier_lv_min_max" # Garde uniquement les trois premières colonnes (id_station, capacité, consommation) et les écrit dans `fichier_lv_min_max
+            { head -n 1 "$fichier_tmp_lv_min_max"; tail -n +2 "$fichier_tmp_lv_min_max" | sort -t':' -k4 -n -r; } > "$fichier_tmp2_lv_min_max" # Trie les lignes du fichier temporaire par la quatrième colonne (différence absolue), en ordre décroissant
+            cut -d ':' -f 1,2,3 "$fichier_tmp2_lv_min_max" > "$fichier_lv_min_max" # Garde uniquement les trois premières colonnes (id_station, capacité, consommation) et les écrit dans `fichier_lv_min_max
 
         else # Si le nombre de lignes du fichier final est supérieur à 21
             { head -n 1 "$fichier_final"; tail -n +2 "$fichier_final" | sort -t':' -k3 -n -r; } > "$fichier_lv_min_max" # Trie les données par la colonne 3 (consommation) en ordre décroissant après la première ligne
@@ -164,9 +163,42 @@ creation_lv_min_max() { #creation_lv_min_max
             cut -d ':' -f 1,2,3 "$fichier_tmp2_lv_min_max" > "$fichier_lv_min_max" # Garde uniquement les trois premières colonnes et les écrit dans `fichier_lv_min_max
         fi
         rm "$fichier_tmp_lv_min_max" # Supprime le fichier temporaire
-        #rm "$fichier_tmp2_lv_min_max" # Supprime le fichier temporaire 2
+        rm "$fichier_tmp2_lv_min_max" # Supprime le fichier temporaire 2
     fi
 }
+creation_fichier_graphique(){
+    #!/bin/bash
+
+    # Fichier d'entrée et fichier de sortie
+    input_file="/workspaces/Projet-C-Wire/tmp/lv_all_minmax.csv"  # Remplacez par votre fichier source
+    output_file="gnuplot_data.txt"  # Fichier de sortie pour GnuPlot
+
+    # Vérification que le fichier d'entrée existe
+    if [ ! -f "$input_file" ]; then
+        echo "Erreur : Le fichier d'entrée $input_file n'existe pas."
+        exit 1
+    fi
+
+    # Préparer les données pour GnuPlot
+    awk -F':' '
+    NR > 1 && NF == 3 {  # Ignorer la première ligne (en-tête) et traiter les lignes valides
+        diff = ($3 > $2) ? $3 - $2 : $2 - $3;  # Calcul de la différence absolue
+        color = ($3 > $2) ? "red" : "green";  # Rouge si Load > Capacity, sinon vert
+        printf "%s %s %s %s %s\n", $1, $2, $3, diff, color;  # ID, Capacity, Load, Diff, Color
+    }' "$input_file" > "$output_file"
+
+    # Vérification que le fichier de sortie est correctement généré
+    if [ ! -s "$output_file" ]; then
+        echo "Erreur : Le fichier de sortie $output_file est vide ou mal formaté."
+        exit 1
+    fi
+
+    # Afficher un aperçu du fichier généré
+    echo "Fichier de sortie généré pour GnuPlot :"
+    head -n 10 "$output_file"  # Afficher les 10 premières lignes
+}
+
+
 
 nb_args=$#
 verification_demande_aide "$@"
@@ -184,64 +216,56 @@ creation_lv_min_max
 
 #!/bin/bash
 
-# Variables
-fichier_lv_min_max="/workspaces/Projet-C-Wire/tmp/lv_all_minmax.csv"
-gnuplot_data="gnuplot_data.txt"
-graph_output="graph_lv_all.png"
+# Fichier d'entrée et de sortie
+input_file="/workspaces/Projet-C-Wire/tmp/lv_all_minmax.csv"  # Fichier source
+output_file="gnuplot_data.txt"  # Fichier simplifié pour GnuPlot
 
-# Vérifier si le fichier d'entrée existe
-if [ ! -f "$fichier_lv_min_max" ]; then
-    echo "Erreur : Le fichier $fichier_lv_min_max n'existe pas."
+# Vérification que le fichier d'entrée existe
+if [ ! -f "$input_file" ]; then
+    echo "Erreur : Le fichier d'entrée $input_file n'existe pas."
     exit 1
 fi
 
-# Supprimer les fichiers graphiques précédents
-if [ -d "graphs" ]; then
-    rm -f graphs/*
-else
-    echo "Le répertoire 'graphs' n'existe pas. Ignoré."
-fi
-
-# Supprimer le fichier temporaire s'il existe déjà
-rm -f "$gnuplot_data"
-
-# Diagnostic : Vérifiez les premières lignes du fichier
-echo "=== DIAGNOSTIC : CONTENU DU FICHIER D'ENTRÉE ==="
-head -n 10 "$fichier_lv_min_max"
-echo "==============================================="
-
-# Préparer les données pour GnuPlot
+# Préparation des données avec `awk` (conserver un en-tête simplifié)
 awk -F':' '
-NR == 1 {
-    print $0;  # Première ligne : en-tête inchangé
-}
-NR > 1 && NF == 4 {
+BEGIN { print "ID Diff Color" > "'"$output_file"'" }  # Début : ajouter un nouvel en-tête
+NR > 1 && NF == 3 {  # Ignorer la première ligne (en-tête original) et traiter uniquement les lignes valides
     diff = ($3 > $2) ? $3 - $2 : $2 - $3;  # Calcul de la différence absolue
     color = ($3 > $2) ? "red" : "green";  # Rouge si Load > Capacity, sinon vert
-    printf "%s %s %s %s %s\n", $1, $2, $3, diff, color;  # ID, Capacity, Load, Diff, Color
-}
-' "$fichier_lv_min_max" > "$gnuplot_data"
+    printf "%s %d %s\n", $1, diff, color >> "'"$output_file"'";  # ID, Diff, Color
+}' "$input_file"
 
-# Vérifiez si le fichier temporaire a été correctement généré
-if [ ! -s "$gnuplot_data" ]; then
-    echo "Erreur : Le fichier gnuplot_data.txt est vide ou mal formaté."
-    echo "=== DIAGNOSTIC : CONTENU DU FICHIER TEMPORAIRE ==="
-    cat "$gnuplot_data"
+# Vérifier si le fichier de sortie est correctement généré
+if [ ! -s "$output_file" ]; then
+    echo "Erreur : Le fichier de sortie $output_file est vide ou mal formaté."
     exit 1
 fi
 
-# Afficher les données préparées pour GnuPlot
-echo "=== CONTENU DU FICHIER TEMPORAIRE ==="
-cat "$gnuplot_data"
-echo "====================================="
+# Afficher les 10 premières lignes pour vérification
+echo "Fichier généré pour GnuPlot :"
+head -n 10 "$output_file"
 
-# Générer le graphique avec GnuPlot
+#!/bin/bash
+
+# Fichier contenant les données
+data_file="gnuplot_data.txt"
+
+# Vérification que le fichier de données existe
+if [ ! -f "$data_file" ]; then
+    echo "Erreur : Le fichier $data_file n'existe pas."
+    exit 1
+fi
+
+# Fichier de sortie pour le graphique
+graph_output="graph_simple.png"
+
+# Génération du graphique avec GnuPlot
 gnuplot << EOF
 set terminal pngcairo size 1280,720 enhanced font 'Verdana,12'
 set output "$graph_output"
 
 # Titres et axes
-set title "Postes LV : Quantité consommée en trop ou marge" font ",14"
+set title "Graphique simple : Quantité consommée en trop" font ",14"
 set xlabel "Postes LV (ID Station)" font ",12"
 set ylabel "Différence (kWh)" font ",12"
 
@@ -250,24 +274,20 @@ set style data histograms
 set style histogram cluster gap 1
 set style fill solid border -1
 set boxwidth 0.8
-
-# Axe X
 set xtics rotate by -45
 
-# Lecture des données et application des couleurs
-plot "< tail -n +2 $gnuplot_data" using 4:xtic(1) with boxes lc rgb var title "Différence (rouge: excès, vert: marge)"
+# Lecture des données
+plot "< tail -n +2 gnuplot_data.txt" using 2:xtic(1) with boxes lc rgb column(3) title "Différence"
+#plot "< tail -n +2 $data_file" using 2:xtic(1) with boxes lc rgb "green" title "Différence"
 EOF
 
-# Vérifiez si le graphique a été généré
+# Vérification du fichier graphique
 if [ -f "$graph_output" ]; then
     echo "Graphique généré avec succès : $graph_output"
-    rm -f "$gnuplot_data"  # Supprimer le fichier temporaire
 else
     echo "Erreur : Le graphique n'a pas été généré."
     exit 1
 fi
-
-
 
 
 echo "Le programme a pris $(( $(date +%s) - start )) secondes à s'exécuter."
