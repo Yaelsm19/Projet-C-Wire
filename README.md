@@ -37,19 +37,6 @@ Ce programme Shell traite des fichiers de données au format `.dat`. Il permet d
 
 
 ---
-### Structure attendue des fichiers `.dat`
-
-Les fichiers doivent suivre cette structure :
-- Colonne 1 : Identifiant (nombre entier)
-- Colonne 2 : Type de station (hvb, hva, lv)
-- Colonne 3 : Type de consommateur (comp, indiv, all)
-- Colonne 4 : Capacité (nombre entier)
-- Colonne 5 : Consommation (nombre entier)
-
-Les colonnes doivent être séparées par des points-virgules (`;`).
-
----
-
 ### Structure des arguments
 
 Le programme accepte entre 3 et 4 arguments :
