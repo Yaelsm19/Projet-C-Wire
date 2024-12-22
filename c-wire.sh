@@ -224,6 +224,14 @@ enregistre_resultat(){
         # Si le fichier n'est pas présent, le copie dans le dossier
         cp "$fichier_final" "$chemindossier"
     fi
+    if [[ "$type_station" == "lv" && "$type_conso" == "all" ]]; then # Vérifie si le type de station est "lv" et le type de consommation est "all"
+            if [ -e "$chemindossier/$(basename "$fichier_lv_min_max")" ]; then
+                echo "Le fichier $(basename "$fichier_lv_min_max") est déjà présent dans le dossier $chemindossier."
+            else
+            # Si le fichier n'est pas présent, le copie dans le dossier
+                cp "$fichier_lv_min_max" "$chemindossier"
+            fi
+    fi
 }
 
 nb_args=$#  # Stocke le nombre d'arguments passés au script dans la variable `nb_args`
