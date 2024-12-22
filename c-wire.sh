@@ -105,30 +105,30 @@ trier_fichier_3_parametre(){  #fonction permettant de trier le fichier en foncti
 }
 trier_fichier_4_parametre(){ #fonction permettant de trier le fichier en fonction des quatres paramètres
     if [[ "$type_station" == "hvb" ]]; then  #vérifie si le type de station est hvb
-        fichier_final="/workspaces/Projet-C-Wire/tmp/hvb_comp.csv"  #attribution d'un chemin pour le fichier final
-        fichier_tmp="/workspaces/Projet-C-Wire/tmp/tmp_hvb_comp.csv"  #attribution d'un chemin pour le fichier tmp
+        fichier_final="/workspaces/Projet-C-Wire/tmp/hvb_comp_${id_centrale}.csv"  #attribution d'un chemin pour le fichier final
+        fichier_tmp="/workspaces/Projet-C-Wire/tmp/tmp_hvb_comp_${id_centrale}.csv"  #attribution d'un chemin pour le fichier tmp
         head -n 1 "$chemin_fichier" | cut -d ';' -f 2,7,8 >> "$fichier_final"  #Garder les colonnes 2,7,8 de la première ligne dans le fichier final
         grep -E -e "^$id_centrale+;[^-]+;-;-;-;-;[^-]+;-" -e "^$id_centrale+;[^-]+;-;-;[^-]+;-;-;[^-]" "$chemin_fichier" | cut -d ';' -f 2,7,8 | tr "-" "0" >> "$fichier_tmp"  #utilisation des fonctions cut et grep afin de garder uniquement les colonnes 2,7,8 des hvb et de leurs consommateurs directs pour la centrale choisi
     elif [[ "$type_station" == "hva" ]]; then #vérifie si le type de station est hva
-        fichier_final="/workspaces/Projet-C-Wire/tmp/hva_comp.csv"  #attribution d'un chemin pour le fichier final
-        fichier_tmp="/workspaces/Projet-C-Wire/tmp/tmp_hva_comp.csv"  #attribution d'un chemin pour le fichier tmp
+        fichier_final="/workspaces/Projet-C-Wire/tmp/hva_comp_${id_centrale}.csv"  #attribution d'un chemin pour le fichier final
+        fichier_tmp="/workspaces/Projet-C-Wire/tmp/tmp_hva_comp_${id_centrale}.csv"  #attribution d'un chemin pour le fichier tmp
         head -n 1 "$chemin_fichier" | cut -d ';' -f 3,7,8 >> "$fichier_final"  #Garder les colonnes 3,7,8 de la première ligne dans le fichier final
         grep -E -e "^$id_centrale+;[^-]+;[^-]+;-;-;-;[^-]+;-" -e "^$id_centrale+;-;[^-]+;-;[^-]+;-;-;[^-]" "$chemin_fichier" | cut -d ';' -f 3,7,8 | tr "-" "0" >> "$fichier_tmp"  #utilisation des fonctions cut et grep afin de garder uniquement les colonnes 3,7,8 des hva et de leurs consommateurs directs pour la centrale choisi
     elif [[ "$type_station" == "lv" ]]; then  #vérifie si le type de station est lv
         if [[ "$type_conso" == "indiv" ]]; then  #vérifie si le type de consommateur est indiv
-            fichier_final="/workspaces/Projet-C-Wire/tmp/lv_indiv.csv"  #attribution d'un chemin pour le fichier final
-            fichier_tmp="/workspaces/Projet-C-Wire/tmp/tmp_lv_indiv.csv"  #attribution d'un chemin pour le fichier tmp
+            fichier_final="/workspaces/Projet-C-Wire/tmp/lv_indiv_${id_centrale}.csv"  #attribution d'un chemin pour le fichier final
+            fichier_tmp="/workspaces/Projet-C-Wire/tmp/tmp_lv_indiv_${id_centrale}.csv"  #attribution d'un chemin pour le fichier tmp
             head -n 1 "$chemin_fichier" | cut -d ';' -f 4,7,8 >> "$fichier_final"  #Garder les colonnes 4,7,8 de la première ligne dans le fichier final
             grep -E -e "^$id_centrale+;-;[^-]+;[^-]+;-;-;[^-]+;-" -e "^$id_centrale+;-;-;[^-]+;-;[^-]+;-;[^-]" "$chemin_fichier" | cut -d ';' -f 4,7,8 | tr "-" "0" >> "$fichier_tmp"  #utilisation des fonctions cut et grep afin de garder uniquement les colonnes 4,7,8 des lv et de leurs consommateurs indiv pour la centrale choisi
         elif [[ "$type_conso" == "comp" ]]; then  #vérifie si le type de consommateur est comp
-            fichier_final="/workspaces/Projet-C-Wire/tmp/lv_comp.csv"  #attribution d'un chemin pour le fichier final
-            fichier_tmp="/workspaces/Projet-C-Wire/tmp/tmp_lv_comp.csv"  #attribution d'un chemin pour le fichier tmp
+            fichier_final="/workspaces/Projet-C-Wire/tmp/lv_comp_${id_centrale}.csv"  #attribution d'un chemin pour le fichier final
+            fichier_tmp="/workspaces/Projet-C-Wire/tmp/tmp_lv_comp_${id_centrale}.csv"  #attribution d'un chemin pour le fichier tmp
             head -n 1 "$chemin_fichier" | cut -d ';' -f 4,7,8 >> "$fichier_final"  #Garder les colonnes 4,7,8 de la première ligne dans le fichier final
             grep -E -e "^$id_centrale+;-;[^-]+;[^-]+;-;-;[^-]+;-" -e "^$id_centrale+;-;-;[^-]+;[^-]+;-;-;[^-]" "$chemin_fichier" | cut -d ';' -f 4,7,8 | tr "-" "0" >> "$fichier_tmp"  #utilisation des fonctions cut et grep afin de garder uniquement les colonnes 4,7,8 des lv et de leurs consommateurs comp pour la centrale choisi
         elif [[ "$type_conso" == "all" ]]; then  #vérifie si le type de consommateur est all
-            fichier_final="/workspaces/Projet-C-Wire/tmp/lv_all.csv"  #attribution d'un chemin pour le fichier final
-            fichier_tmp="/workspaces/Projet-C-Wire/tmp/tmp_lv_all.csv"  #attribution d'un chemin pour le fichier tmp
-            fichier_lv_min_max="/workspaces/Projet-C-Wire/tmp/lv_all_minmax.csv"  #attribution d'un chemin pour le fichier lv_min_max
+            fichier_final="/workspaces/Projet-C-Wire/tmp/lv_all_${id_centrale}.csv"  #attribution d'un chemin pour le fichier final
+            fichier_tmp="/workspaces/Projet-C-Wire/tmp/tmp_lv_all_${id_centrale}.csv"  #attribution d'un chemin pour le fichier tmp
+            fichier_lv_min_max="/workspaces/Projet-C-Wire/tmp/lv_all_minmax_${id_centrale}.csv"  #attribution d'un chemin pour le fichier lv_min_max
             head -n 1 "$chemin_fichier" | cut -d ';' -f 4,7,8 >> "$fichier_lv_min_max"  #Garder les colonnes 4,7,8 de la première ligne dans le fichier lv_min_max
             head -n 1 "$chemin_fichier" | cut -d ';' -f 4,7,8 >> "$fichier_final"  #Garder les colonnes 4,7,8 de la première ligne dans le fichier final
             grep -E -e "^$id_centrale+;-;[^-]+;[^-]+;-;-;[^-]+;-" -e "^$id_centrale+;-;-;[^-]+;[^-]+;-;-;[^-]" -e "^$id_centrale+;-;-;[^-]+;-;[^-]+;-;[^-]" "$chemin_fichier" | cut -d ';' -f 4,7,8 | tr "-" "0" >> "$fichier_tmp"  #utilisation des fonctions cut et grep afin de garder uniquement les colonnes 4,7,8 des lv et de tous leurs consommateurs pour la centrale choisi
