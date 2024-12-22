@@ -85,7 +85,7 @@ trier_fichier_3_parametre(){  #fonction permettant de trier le fichier en foncti
         grep -E -e "^[^-]+;[^-]+;[^-]+;-;-;-;[^-]+;-" -e "^[^-]+;-;[^-]+;-;[^-]+;-;-;[^-]" "$chemin_fichier" | cut -d ';' -f 3,7,8 | tr "-" "0" >> "$fichier_tmp"  #utilisation des fonctions cut et grep afin de garder uniquement les colonnes 3,7,8 des hva et des consommateur direct des hva 
     elif [[ "$type_station" == "lv" ]]; then  #vérifie si le type de station est lv
         if [[ "$type_conso" == "indiv" ]]; then  #vérifie si le type de consommateur est indiv
-            fichier_final="$(pwd)tmp/lv_indiv.csv"  #attribution d'un chemin pour le fichier final
+            fichier_final="$(pwd)/tmp/lv_indiv.csv"  #attribution d'un chemin pour le fichier final
             fichier_tmp="$(pwd)/tmp/tmp_lv_indiv.csv"  #attribution d'un chemin pour le fichier tmp
             head -n 1 "$chemin_fichier" | cut -d ';' -f 4,7,8 >> "$fichier_final"  #Garder les colonnes 4,7,8 de la première ligne dans le fichier final
             grep -E -e "^[^-]+;-;[^-]+;[^-]+;-;-;[^-]+;-" -e "^[^-]+;-;-;[^-]+;-;[^-]+;-;[^-]" "$chemin_fichier" | cut -d ';' -f 4,7,8 | tr "-" "0" >> "$fichier_tmp"  #utilisation des fonctions cut et grep afin de garder uniquement les colonnes 4,7,8 des lv et des consommateur indiv des lv 
@@ -116,8 +116,8 @@ trier_fichier_4_parametre(){ #fonction permettant de trier le fichier en fonctio
         grep -E -e "^$id_centrale+;[^-]+;[^-]+;-;-;-;[^-]+;-" -e "^$id_centrale+;-;[^-]+;-;[^-]+;-;-;[^-]" "$chemin_fichier" | cut -d ';' -f 3,7,8 | tr "-" "0" >> "$fichier_tmp"  #utilisation des fonctions cut et grep afin de garder uniquement les colonnes 3,7,8 des hva et de leurs consommateurs directs pour la centrale choisi
     elif [[ "$type_station" == "lv" ]]; then  #vérifie si le type de station est lv
         if [[ "$type_conso" == "indiv" ]]; then  #vérifie si le type de consommateur est indiv
-            fichier_final="$(pwd)/tmp/lv_indiv_${id_centrale}.csv"  #attribution d'un chemin pour le fichier final
-            fichier_tmp="$(pwd)/tmp/tmp_lv_indiv_${id_centrale}.csv"  #attribution d'un chemin pour le fichier tmp
+            fichier_final="$(pwd)/tmp/lv_indiv_${id_centrale}.csv"  # Attribution d'un chemin pour le fichier final
+            fichier_tmp="$(pwd)/tmp/tmp_lv_indiv_${id_centrale}.csv"  # Attribution d'un chemin pour le fichier temporaire
             head -n 1 "$chemin_fichier" | cut -d ';' -f 4,7,8 >> "$fichier_final"  #Garder les colonnes 4,7,8 de la première ligne dans le fichier final
             grep -E -e "^$id_centrale+;-;[^-]+;[^-]+;-;-;[^-]+;-" -e "^$id_centrale+;-;-;[^-]+;-;[^-]+;-;[^-]" "$chemin_fichier" | cut -d ';' -f 4,7,8 | tr "-" "0" >> "$fichier_tmp"  #utilisation des fonctions cut et grep afin de garder uniquement les colonnes 4,7,8 des lv et de leurs consommateurs indiv pour la centrale choisi
         elif [[ "$type_conso" == "comp" ]]; then  #vérifie si le type de consommateur est comp
