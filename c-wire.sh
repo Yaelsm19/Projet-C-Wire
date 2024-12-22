@@ -216,6 +216,15 @@ traitement_lv_all(){
         creation_graphique # Permet de créer le graphique
     fi
 }
+enregistre_resultat(){
+    chemindossier="/workspaces/Projet-C-Wire/tests"  # Chemin du dossier cible
+    if [ -e "$chemindossier/$(basename "$fichier_final")" ]; then
+        echo "Le fichier $(basename "$fichier_final") est déjà présent dans le dossier $chemindossier."
+    else
+        # Si le fichier n'est pas présent, le copie dans le dossier
+        cp "$fichier_final" "$chemindossier"
+    fi
+}
 
 nb_args=$#  # Stocke le nombre d'arguments passés au script dans la variable `nb_args`
 verification_demande_aide "$@"  # Vérifie si une demande d'aide est passée en argument (`-h`)
@@ -229,4 +238,5 @@ tri_fichier  # Trie les données du fichier d'entrée selon des critères spéci
 make -s -C /workspaces/Projet-C-Wire/Code_C run ARGS="$fichier_tmp $fichier_final"  # Exécute la commande `make` pour compiler et exécuter le programme C avec des arguments spécifiques
 sort -t ':' -k2 -n "$fichier_final" -o "$fichier_final"  # Trie le fichier final par la deuxième colonne en ordre numérique
 traitement_lv_all  # Effectue un traitement spécifique pour toutes les stations de type LV
+enregistre_resultat
 echo "Le programme a pris $(( $(date +%s) - start )) secondes à s'exécuter."  # Affiche le temps total d'exécution du programme
