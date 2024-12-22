@@ -7,6 +7,7 @@
 - Bash (version 4.0 ou supérieure)
 - Gnuplot pour la génération des graphiques
 - Autorisations de lecture/écriture pour créer les dossiers `tmp` et `graphs`
+- Ajouter le fichier à traiter dans le dossier input
 
 ---
 
@@ -82,12 +83,12 @@ Le programme accepte entre 3 et 4 arguments :
 
 1. Avec 3 paramètres :
    ```bash
-   ./c-wire.sh "/workspaces/Projet-C-Wire/c-wire_v25.dat" hvb comp
+   ./c-wire.sh "/workspaces/Projet-C-Wire/input/c-wire_v25.dat" hvb comp
    ```
 
 2. Avec 4 paramètres :
    ```bash
-   ./c-wire.sh "/workspaces/Projet-C-Wire/c-wire_v25.dat" lv indiv 1
+   ./c-wire.sh "/workspaces/Projet-C-Wire/input/c-wire_v25.dat" lv indiv 1
    ```
 
 ---
@@ -151,65 +152,11 @@ Le programme accepte entre 3 et 4 arguments :
 #### Fonction : `creation_lv_min_max()`
 - Traite un fichier CSV contenant des informations sur des stations (identifiant, capacité, consommation) pour produire un fichier trié et analysé.
 
-##### Fonctionnement : 
-  1. Analyse la taille du fichier :
-   - 21 lignes ou moins :
-      - Ajoute une colonne avec l'écart absolu entre consommation et capacité.
-      - Trie par cet écart, puis conserve les 3 colonnes principales.
-   - Plus de 21 lignes :
-      - Trie par consommation décroissante.
-      - Conserve les 11 premières et 10 dernières lignes.
-      - Ajoute et trie par l'écart absolu, puis garde les 3 colonnes principales.
-  2. Fichiers temporaires :
-   - Utilise des fichiers pour calculs intermédiaires, supprimés ensuite.
-  3. Sortie :
-   - Un fichier contenant les données triées et filtrées : identifiant, capacité, consommation.
-  4. Utilité : 
-   - Identifie les stations avec les écarts les plus significatifs entre consommation et capacité ou trie selon des critères prédéfinis.
-
 #### Fonction : `creation_fichier_graphique()`
 - Cette fonction prépare un fichier de données simplifié pour générer des graphiques avec GnuPlot à partir des informations sur les stations.
 
-##### Fonctionnement : 
-  1. Fichier de sortie :
-   - Le fichier `gnuplot_donnee.txt` est créé pour contenir les données nécessaires au tracé des graphiques.
-  2. Traitement des données :
-   - Ajoute un en-tête simplifié : `ID Diff Color`.
-   - Pour chaque ligne (sauf l'en-tête d'origine) du `fichier fichier_lv_min_max` :
-      - Calcule la différence (`Diff`) entre consommation et capacité.
-      - Attribue une couleur (`Color`) :
-         - `1` (rouge) si la différence est positive,
-         - `2` (vert) si elle est négative.
-      - Écrit ces informations dans le fichier sous forme de colonnes (`ID`, `Diff`, `Color`).
-  3. Résultat :
-   - Un fichier formaté pour GnuPlot, permettant de visualiser les écarts de consommation/capacité avec un code couleur.
-  4. Utilité : 
-   - Facilite la visualisation des différences entre consommation et capacité des stations, avec des couleurs pour distinguer les écarts positifs (surcharge) et négatifs (sous-utilisation).
-
 #### Fonction : `creation_graphique()`
 - Cette fonction génère un graphique en format PNG à partir des données de stations, en visualisant les écarts de consommation avec des codes couleur.
-
-##### Fonctionnement : 
-1. Fichier de sortie :
-   - Le fichier graphique est sauvegardé sous le chemin : `gnuplot_graphique.png`.
-  2. Génération avec GnuPlot :
-   - Configuration :
-      - Définit le format PNG avec une résolution de 1280x720 et une police lisible.
-      - Ajoute un titre et des libellés pour les axes :
-         - Axe X : Identifiant des stations (`ID Station`),
-         - Axe Y : Différence entre consommation et capacité (`Différence (kWh)`).
-      - Style du graphique :
-         - Barres groupées avec une largeur définie et des couleurs solides.
-         - Rouge pour les surplus de consommation (colonne 3 = 1).
-         - Vert pour les marges d'énergie disponibles (colonne 3 = 2).
-  3. Vérification :
-   - Vérifie si le fichier PNG a été généré avec succès.
-   - Affiche un message confirmant la réussite ou l'échec.
-  4. Utilité : 
-   - Permet de visualiser clairement les écarts de consommation/capacité pour toutes les stations :
-      - Rouge : Stations en surcharge (surplus de consommation).
-      - Vert : Stations avec une marge d'énergie disponible.
-   - Ce graphique facilite l'interprétation rapide des données.
 
 #### Fonction : `traitement_lv_all()` 
 - Cette fonction exécute le traitement complet pour les stations de type "LV" avec une consommation "all".
