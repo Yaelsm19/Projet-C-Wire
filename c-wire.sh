@@ -145,9 +145,9 @@ tri_fichier(){  #fonction permettant de trier le fichier
         exit 1  #sortie du programme
     fi
     sort -t';' -k3 -n "$fichier_tmp" -o "$fichier_tmp"  #trie du fichier en fonction de la colonnes trois dans l'ordre croissant
+    sed -i 's/;/:/g' "$fichier_final" #Remplace les ";" par des ":"
 }
 creation_lv_min_max() { #creation_lv_min_max
-    if [[ "$type_station" == "lv" && "$type_conso" == "all" ]]; then # Vérifie si le type de station est "lv" et le type de consommation est "all"
         fichier_tmp_lv_min_max="/workspaces/Projet-C-Wire/tmp/tmp_lv_all_minmax.csv" # Définit le chemin vers un fichier temporaire utilisé pour les calculs et transformations
         fichier_tmp2_lv_min_max="/workspaces/Projet-C-Wire/tmp/tmp2_lv_all_minmax.csv" # Définit le chemin vers un fichier temporaire utilisé pour les calculs et transformations
         if [[ "$(wc -l < "$fichier_final")" -lt 22 ]]; then # Vérifie si le nombre de lignes du fichier final est inférieur ou égal à 21
@@ -164,41 +164,58 @@ creation_lv_min_max() { #creation_lv_min_max
         fi
         rm "$fichier_tmp_lv_min_max" # Supprime le fichier temporaire
         rm "$fichier_tmp2_lv_min_max" # Supprime le fichier temporaire 2
-    fi
 }
+
 creation_fichier_graphique(){
-    #!/bin/bash
-
-    # Fichier d'entrée et fichier de sortie
-    input_file="/workspaces/Projet-C-Wire/tmp/lv_all_minmax.csv"  # Remplacez par votre fichier source
-    output_file="gnuplot_data.txt"  # Fichier de sortie pour GnuPlot
-
-    # Vérification que le fichier d'entrée existe
-    if [ ! -f "$input_file" ]; then
-        echo "Erreur : Le fichier d'entrée $input_file n'existe pas."
-        exit 1
-    fi
-
-    # Préparer les données pour GnuPlot
+    fichier_graphique_txt="/workspaces/Projet-C-Wire/graphs/gnuplot_donnee.txt"  # Fichier simplifié pour GnuPlot
+    # Préparation des données avec `awk` (conserver un en-tête simplifié)
     awk -F':' '
-    NR > 1 && NF == 3 {  # Ignorer la première ligne (en-tête) et traiter les lignes valides
-        diff = ($3 > $2) ? $3 - $2 : $2 - $3;  # Calcul de la différence absolue
-        color = ($3 > $2) ? "red" : "green";  # Rouge si Load > Capacity, sinon vert
-        printf "%s %s %s %s %s\n", $1, $2, $3, diff, color;  # ID, Capacity, Load, Diff, Color
-    }' "$input_file" > "$output_file"
+    BEGIN { print "ID Diff Color" > "'"$fichier_graphique_txt"'" }  # Début : ajouter un nouvel en-tête
+    NR > 1 && NF == 3 {  # Ignorer la première ligne (en-tête original) et traiter uniquement les lignes valides
+        diff = $3 - $2;  # Calcul direct de la différence (positif ou négatif)
+        color = (diff > 0) ? "1" : "2";  # Rouge si diff > 0, sinon vert
+        printf "%s %d %s\n", $1, diff, color >> "'"$fichier_graphique_txt"'";  # ID, Diff, Color
+    }' "$fichier_lv_min_max"
 
-    # Vérification que le fichier de sortie est correctement généré
-    if [ ! -s "$output_file" ]; then
-        echo "Erreur : Le fichier de sortie $output_file est vide ou mal formaté."
+}
+creation_graphique(){
+    # Fichier de sortie pour le graphique
+    fichier_graphique_png="/workspaces/Projet-C-Wire/graphs/gnuplot_graphique.png"
+
+    # Génération du graphique avec GnuPlot
+    gnuplot << EOF
+    set terminal pngcairo size 1280,720 enhanced font 'Verdana,12'
+    set output "$fichier_graphique_png"
+
+    # Titres et axes
+    set title "Graphique avec toutes les stations" font ",14"
+    set xlabel "Postes LV (ID Station)" font ",12"
+    set ylabel "Différence (kWh)" font ",12"
+
+    # Style des barres
+    set style data histograms
+    set style histogram cluster gap 1
+    set style fill solid border -1
+    set boxwidth 0.8
+
+    # Lecture des données avec application des couleurs
+    plot "$fichier_graphique_txt" using (column(3) == 1 ? column(2) : NaN):xtic(1) with boxes lc rgb "red" title "Surplus de consommation", \
+        "$fichier_graphique_txt" using (column(3) == 2 ? column(2) : NaN):xtic(1) with boxes lc rgb "green" title "Marge d'énergie"
+EOF
+    if [ -f "$fichier_graphique_png" ]; then
+        echo "Graphique généré avec succès : $fichier_graphique_png"
+    else
+        echo "Erreur : Le graphique n'a pas été généré."
         exit 1
     fi
-
-    # Afficher un aperçu du fichier généré
-    echo "Fichier de sortie généré pour GnuPlot :"
-    head -n 10 "$output_file"  # Afficher les 10 premières lignes
 }
-
-
+traitement_lv_all(){
+    if [[ "$type_station" == "lv" && "$type_conso" == "all" ]]; then # Vérifie si le type de station est "lv" et le type de consommation est "all"
+        creation_lv_min_max
+        creation_fichier_graphique
+        creation_graphique
+    fi
+}
 
 nb_args=$#
 verification_demande_aide "$@"
@@ -209,85 +226,7 @@ id_centrale=$4
 verif_tout_arguments
 verif_presence_dossier
 tri_fichier
-sed -i 's/;/:/g' "$fichier_final"
 make run ARGS="$fichier_tmp $fichier_final"
 sort -t ':' -k2 -n "$fichier_final" -o "$fichier_final"
-creation_lv_min_max
-
-#!/bin/bash
-
-# Fichier d'entrée et de sortie
-input_file="/workspaces/Projet-C-Wire/tmp/lv_all_minmax.csv"  # Fichier source
-output_file="gnuplot_data.txt"  # Fichier simplifié pour GnuPlot
-
-# Vérification que le fichier d'entrée existe
-if [ ! -f "$input_file" ]; then
-    echo "Erreur : Le fichier d'entrée $input_file n'existe pas."
-    exit 1
-fi
-
-# Préparation des données avec `awk` (conserver un en-tête simplifié)
-awk -F':' '
-BEGIN { print "ID Diff Color" > "'"$output_file"'" }  # Début : ajouter un nouvel en-tête
-NR > 1 && NF == 3 {  # Ignorer la première ligne (en-tête original) et traiter uniquement les lignes valides
-    diff = ($3 > $2) ? $3 - $2 : $2 - $3;  # Calcul de la différence absolue
-    color = ($3 > $2) ? "red" : "green";  # Rouge si Load > Capacity, sinon vert
-    printf "%s %d %s\n", $1, diff, color >> "'"$output_file"'";  # ID, Diff, Color
-}' "$input_file"
-
-# Vérifier si le fichier de sortie est correctement généré
-if [ ! -s "$output_file" ]; then
-    echo "Erreur : Le fichier de sortie $output_file est vide ou mal formaté."
-    exit 1
-fi
-
-# Afficher les 10 premières lignes pour vérification
-echo "Fichier généré pour GnuPlot :"
-head -n 10 "$output_file"
-
-#!/bin/bash
-
-# Fichier contenant les données
-data_file="gnuplot_data.txt"
-
-# Vérification que le fichier de données existe
-if [ ! -f "$data_file" ]; then
-    echo "Erreur : Le fichier $data_file n'existe pas."
-    exit 1
-fi
-
-# Fichier de sortie pour le graphique
-graph_output="graph_colored_dynamic.png"
-
-# Génération du graphique avec GnuPlot
-gnuplot << EOF
-set terminal pngcairo size 1280,720 enhanced font 'Verdana,12'
-set output "$graph_output"
-
-# Titres et axes
-set title "Graphique avec toutes les stations" font ",14"
-set xlabel "Postes LV (ID Station)" font ",12"
-set ylabel "Différence (kWh)" font ",12"
-
-# Style des barres
-set style data histograms
-set style histogram cluster gap 1
-set style fill solid border -1
-set boxwidth 0.8
-set xtics rotate by -45
-
-# Lecture des données avec application des couleurs
-plot "$data_file" using 2:xtic(1) with boxes lc rgb "red" title "Différence"
-EOF
-
-# Vérification du fichier graphique
-if [ -f "$graph_output" ]; then
-    echo "Graphique généré avec succès : $graph_output"
-else
-    echo "Erreur : Le graphique n'a pas été généré."
-    exit 1
-fi
-
-
-#plot "< tail -n +2 $data_file" using 2:xtic(1) with boxes lc rgb "green" title "Différence"
+traitement_lv_all
 echo "Le programme a pris $(( $(date +%s) - start )) secondes à s'exécuter."
