@@ -2,6 +2,14 @@
 
 ## Partie shell 
 
+### Prérequis
+
+- Bash (version 4.0 ou supérieure)
+- Gnuplot pour la génération des graphiques
+- Autorisations de lecture/écriture pour créer les dossiers `tmp` et `graphs`
+
+---
+
 ### Description du projet
 
 Ce programme Shell traite des fichiers de données au format `.dat`. Il permet de vérifier la validité des entrées utilisateur, de trier les données en fonction de différents paramètres et de les organiser dans des fichiers spécifiques pour une utilisation ultérieure.
@@ -11,7 +19,7 @@ Ce programme Shell traite des fichiers de données au format `.dat`. Il permet d
 ### Fonctionnalités principales 
 
 1. **Vérification des Paramètres** :
-   - Le programme vérifie que les fichiers fournis existent et qu’ils ont l'extension`.dat`.
+   - Le programme vérifie que les fichiers fournis existent et qu’ils ont l'extension`.dat`: 
    - Il valide les paramètres relatifs aux types de stations et de consommateurs.
    - Il gère les combinaisons interdites entre les paramètres.
    - Le programme vérifie que le nombre d'arguments fournis est correct (3 ou 4).
@@ -25,6 +33,19 @@ Ce programme Shell traite des fichiers de données au format `.dat`. Il permet d
 4. **Tri des Données** :
    - Les données sont triées dans des fichiers spécifiques en fonction des types de stations et de consommateurs.
    - Le tri peut se faire avec ou sans identifiant de centrale. 
+
+
+---
+### Structure attendue des fichiers `.dat`
+
+Les fichiers doivent suivre cette structure :
+- Colonne 1 : Identifiant (nombre entier)
+- Colonne 2 : Type de station (hvb, hva, lv)
+- Colonne 3 : Type de consommateur (comp, indiv, all)
+- Colonne 4 : Capacité (nombre entier)
+- Colonne 5 : Consommation (nombre entier)
+
+Les colonnes doivent être séparées par des points-virgules (`;`).
 
 ---
 
@@ -127,6 +148,99 @@ Le programme accepte entre 3 et 4 arguments :
 - Détermine automatiquement s'il faut utiliser `trier_fichier_3_parametre` ou `trier_fichier_4_parametre` en fonction du nombre d'arguments fournis.
 - Sert de point d'entrée pour les opérations de tri.
 
+#### Fonction : `creation_lv_min_max()`
+- Traite un fichier CSV contenant des informations sur des stations (identifiant, capacité, consommation) pour produire un fichier trié et analysé.
+
+##### Fonctionnement : 
+  1. Analyse la taille du fichier :
+   - 21 lignes ou moins :
+      - Ajoute une colonne avec l'écart absolu entre consommation et capacité.
+      - Trie par cet écart, puis conserve les 3 colonnes principales.
+   - Plus de 21 lignes :
+      - Trie par consommation décroissante.
+      - Conserve les 11 premières et 10 dernières lignes.
+      - Ajoute et trie par l'écart absolu, puis garde les 3 colonnes principales.
+  2. Fichiers temporaires :
+   - Utilise des fichiers pour calculs intermédiaires, supprimés ensuite.
+  3. Sortie :
+   - Un fichier contenant les données triées et filtrées : identifiant, capacité, consommation.
+  4. Utilité : 
+   - Identifie les stations avec les écarts les plus significatifs entre consommation et capacité ou trie selon des critères prédéfinis.
+
+#### Fonction : `creation_fichier_graphique()`
+- Cette fonction prépare un fichier de données simplifié pour générer des graphiques avec GnuPlot à partir des informations sur les stations.
+
+##### Fonctionnement : 
+  1. Fichier de sortie :
+   - Le fichier `gnuplot_donnee.txt` est créé pour contenir les données nécessaires au tracé des graphiques.
+  2. Traitement des données :
+   - Ajoute un en-tête simplifié : `ID Diff Color`.
+   - Pour chaque ligne (sauf l'en-tête d'origine) du `fichier fichier_lv_min_max` :
+      - Calcule la différence (`Diff`) entre consommation et capacité.
+      - Attribue une couleur (`Color`) :
+         - `1` (rouge) si la différence est positive,
+         - `2` (vert) si elle est négative.
+      - Écrit ces informations dans le fichier sous forme de colonnes (`ID`, `Diff`, `Color`).
+  3. Résultat :
+   - Un fichier formaté pour GnuPlot, permettant de visualiser les écarts de consommation/capacité avec un code couleur.
+  4. Utilité : 
+   - Facilite la visualisation des différences entre consommation et capacité des stations, avec des couleurs pour distinguer les écarts positifs (surcharge) et négatifs (sous-utilisation).
+
+#### Fonction : `creation_graphique()`
+- Cette fonction génère un graphique en format PNG à partir des données de stations, en visualisant les écarts de consommation avec des codes couleur.
+
+##### Fonctionnement : 
+1. Fichier de sortie :
+   - Le fichier graphique est sauvegardé sous le chemin : `gnuplot_graphique.png`.
+  2. Génération avec GnuPlot :
+   - Configuration :
+      - Définit le format PNG avec une résolution de 1280x720 et une police lisible.
+      - Ajoute un titre et des libellés pour les axes :
+         - Axe X : Identifiant des stations (`ID Station`),
+         - Axe Y : Différence entre consommation et capacité (`Différence (kWh)`).
+      - Style du graphique :
+         - Barres groupées avec une largeur définie et des couleurs solides.
+         - Rouge pour les surplus de consommation (colonne 3 = 1).
+         - Vert pour les marges d'énergie disponibles (colonne 3 = 2).
+  3. Vérification :
+   - Vérifie si le fichier PNG a été généré avec succès.
+   - Affiche un message confirmant la réussite ou l'échec.
+  4. Utilité : 
+   - Permet de visualiser clairement les écarts de consommation/capacité pour toutes les stations :
+      - Rouge : Stations en surcharge (surplus de consommation).
+      - Vert : Stations avec une marge d'énergie disponible.
+   - Ce graphique facilite l'interprétation rapide des données.
+
+#### Fonction : `traitement_lv_all()` 
+- Cette fonction exécute le traitement complet pour les stations de type "LV" avec une consommation "all".
+ 1. Vérifie que type_station est "lv" et type_conso est "all".
+ 2. Lance les fonctions suivantes :
+   - `creation_lv_min_max` : Analyse et trie les données.
+   - `creation_fichier_graphique` : Prépare les données pour GnuPlot.
+   - `creation_graphique` : Génère un graphique des écarts de consommation.
+ 3. Automatise l’analyse et la visualisation des données des stations LV.
+
+---
+
+### Processus d'exécution du programme
+
+Le programme suit les étapes suivantes pour traiter les fichiers et générer les résultats :
+
+ 1. Vérification des Arguments :
+    -Le script commence par vérifier le nombre d'arguments fournis avec la commande. Il valide également si des options d'aide sont demandées (par exemple, `-h`).
+ 2. Récupération des Paramètres :
+   Les paramètres nécessaires sont extraits des arguments fournis, tels que le chemin du fichier, le type de station, le type de consommateur, et l'identifiant de la centrale.
+ 3. Vérification de la Présence des Dossiers :
+   - Le programme vérifie si les dossiers nécessaires pour le traitement des fichiers existent (par exemple, `tmp` et `graphs`). Si ces dossiers n'existent pas, ils sont créés.
+ 4. Tri des Données :
+   - Le fichier de données est trié par station et consommateur, et les résultats sont enregistrés dans un fichier temporaire.
+ 5. Exécution du Code C :
+   - Le programme exécute un code C pour effectuer des traitements supplémentaires (par exemple, calcul des consommations ou des capacités).
+ 6. Tri Final et Résultats :
+   - Après l'exécution du code C, les résultats sont triés à nouveau en fonction de certains critères (par exemple, le type de station).
+ 7. Calcul du Temps d'Exécution :
+   - Enfin, le programme affiche le temps d'exécution total du processus.
+
 ---
 
 ### Structure des fichiers et répertoires
@@ -161,7 +275,7 @@ Ce programme utilise un arbre binaire de recherche équilibré (AVL) pour gérer
 
 1. **Insertion de Stations** :
    - Les stations sont insérées dans l'arbre AVL en fonction de leur identifiant `id_station`
-   - L'arbre se rééquilibre automatiquement après chaque insertion pour rester équilibrer.
+   - L'arbre se rééquilibre automatiquement après chaque insertion pour rester équilibré.
 
 2. **Gestion de la Consommation** :
    - On peut ajouter de la consommation à une station existante en utilisant son identifiant. La somme des consommations est mise à jour en conséquence.
@@ -179,6 +293,8 @@ Ce programme utilise un arbre binaire de recherche équilibré (AVL) pour gérer
 - <stdio.h>
 - <stdlib.h>
 - <string.h>
+- "structures.h"
+- "avl_file_operations.h"
 
 ---
 
@@ -201,41 +317,52 @@ L'arbre binaire de recherche est structuré de manière suivante :
 
 ### Fonctions principales 
 
-#### Fonction : `creer_arbre()`
+#### `avl_operation.c`
+
+##### Fonction : `creer_arbre()`
 - Crée un nouvel arbre AVL avec une station d'identifiant `id` et de capacité `capa`. Le programme alloue dynamiquement la mémoire nécessaire pour l'arbre.
 
-#### Fonctions : `min()` et `max()`
+##### Fonctions : `min()` et `max()`
 - Fonctions utilitaires qui retournent respectivement le minimum et le maximum de deux valeurs entières.
 
-#### Fonctions : `rotation_droite()` et `rotation_gauche()`
+##### Fonctions : `rotation_droite()` et `rotation_gauche()`
 - Effectuent respectivement une rotation droite et une rotation gauche pour rééquilibrer l'arbre. Ces rotations sont utilisées dans l'algorithme AVL pour maintenir l'équilibre après des insertions.
 
-#### Fonctions : `double_rotation_droit()` et `double_rotation_gauche()`
+##### Fonctions : `double_rotation_droit()` et `double_rotation_gauche()`
 - Effectuent des rotations doubles pour rééquilibrer l'arbre lorsque c'est nécessaire.
 
-#### Fonction : `equilibrer_AVL()`
+Les rotations simples et doubles sont utilisées pour maintenir l'équilibre de l'arbre AVL. Cela permet d'assurer des performances optimales pour les opérations d'insertion et de recherche. En effet, ces rotations sont nécessaires pour garantir que l'arbre reste équilibré et que les opérations sur l'arbre se réalisent en temps logarithmique O(log n).
+
+##### Fonction : `equilibrer_AVL()`
 - Équilibre l'arbre AVL après une insertion en appliquant les rotations nécessaires.
 
-#### Fonction : `insert_AVL()`
+##### Fonction : `insert_AVL()`
 - Insère une nouvelle station dans l'arbre AVL et met à jour l'équilibre de l'arbre. La fonction renvoie l'arbre rééquilibré.
 
-#### Fonction : `afficher_station()`
-- Affiche les informations d'une station (id, capacité, consommation).
+#### `avl_file_operation_c` : 
 
-#### Fonction : `afficher_AVL()`
-- Affiche toutes les stations de l'arbre en parcourant celui-ci de manière infixe.
-
-#### Fonction : `ajout_consommation_noeud()` 
+##### Fonction : `ajout_consommation_noeud()` 
 - Ajoute la consommation à une station existante identifiée par son `id_noeud` . Si le noeud n'existe pas, il parcourt l'arbre pour l'ajouter ou met à jour la consommation de la station correspondante.
 
-#### Fonction : `ecrire()` 
+##### Fonction : `ecrire()` 
+- Écrit les données de l'arbre AVL (ID, capacité, consommation) dans un fichier, en parcourant l'arbre récursivement.
 
-#### Fonction : `verifier_nb_argument()` 
+##### Fonction : `recuperer_fichier_tmp ()`
+- Lit un fichier contenant des données de stations et construit un arbre AVL. Si la consommation est nulle, un nouveau nœud est ajouté, sinon la consommation est mise à jour dans l'arbre existant.
+
+##### Fonction : `traitement_total()`
+- Lit un fichier temporaire pour construire un arbre AVL et écrit les résultats dans un fichier final.
+
 --- 
+
+### Exemple d'utilisation
+
+Pour exécuter le programme, il suffit de passer un fichier d'entrée contenant les stations et un fichier de sortie où les résultats seront écrits. Exemple d'exécution : ./programme fichier_temporaire.txt fichier_final.txt
+Dans cet exemple, `fichier_temporaire.txt` contient les données des stations à charger dans l'arbre AVL, et `fichier_final.txt` recevra les résultats après le traitement.
 
 ### Structure des Fichiers
 
-Le programme ne dépend pas de fichiers externes, tout est géré en mémoire via des structures de données. L'exécution se fait entièrement en mémoire vive.
+Le programme lit les données depuis un fichier d'entrée (fichier temporaire) et écrit les résultats dans un fichier de sortie (fichier final). La gestion de ces fichiers se fait via des fonctions spécifiques. Les données sont traitées en mémoire grâce aux structures de données, et les fichiers servent uniquement à l'entrée et à la sortie des informations.
 
 ---
 
@@ -243,4 +370,5 @@ Le programme ne dépend pas de fichiers externes, tout est géré en mémoire vi
 
 Le programme signale les erreurs suivantes :
 - **Erreur d'allocation mémoire** : Si l'allocation mémoire pour un nouvel arbre échoue.
-- **Erreur lors de l'ajout de consommation** : Si une station n'est pas trouvée lors de l'ajout de consommation.
+- **Erreur d'ouverture de fichier** : Si un fichier d'entrée ou de sortie ne peut pas être ouvert, un message d'erreur est affiché et le programme se termine.
+- **Erreur lors de l'ajout de consommation** : Si une station n'est pas trouvée lors de l'ajout de consommation. Le programme tentera de la parcourir dans l'arbre ou mettra à jour les informations si elle existe déjà.
