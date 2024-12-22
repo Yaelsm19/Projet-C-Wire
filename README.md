@@ -83,12 +83,12 @@ Le programme accepte entre 3 et 4 arguments :
 
 1. Avec 3 paramètres :
    ```bash
-   ./c-wire.sh "/workspaces/Projet-C-Wire/input/c-wire_v25.dat" hvb comp
+   ./c-wire.sh "input/c-wire_v25.dat" hvb comp
    ```
 
 2. Avec 4 paramètres :
    ```bash
-   ./c-wire.sh "/workspaces/Projet-C-Wire/input/c-wire_v25.dat" lv indiv 1
+   ./c-wire.sh "input/c-wire_v25.dat" lv indiv 1
    ```
 
 ---
@@ -167,6 +167,8 @@ Le programme accepte entre 3 et 4 arguments :
    - `creation_graphique` : Génère un graphique des écarts de consommation.
  3. Automatise l’analyse et la visualisation des données des stations LV.
 
+#### Fonction : `enregistre_resultat()`
+-La fonction enregistre_resultat vérifie si les fichiers générés (fichier_final et fichier_lv_min_max (dans le cas de lv all)) existent déjà dans le dossier cible tests, et les copie dans ce dossier s'ils ne sont pas présents.
 ---
 
 ### Processus d'exécution du programme
