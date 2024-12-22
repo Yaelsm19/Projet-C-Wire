@@ -226,7 +226,7 @@ id_centrale=$4
 verif_tout_arguments
 verif_presence_dossier
 tri_fichier
-make run ARGS="$fichier_tmp $fichier_final"
+make -s -C /workspaces/Projet-C-Wire/Code_C run ARGS="$fichier_tmp $fichier_final"
 sort -t ':' -k2 -n "$fichier_final" -o "$fichier_final"
 traitement_lv_all
 echo "Le programme a pris $(( $(date +%s) - start )) secondes à s'exécuter."
