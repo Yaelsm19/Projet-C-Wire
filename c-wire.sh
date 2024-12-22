@@ -74,30 +74,30 @@ verif_presence_dossier(){  #fonction vérifiant que les dossiers tmp et graphs e
 }
 trier_fichier_3_parametre(){  #fonction permettant de trier le fichier en fonction des trois premiers paramètres
     if [[ "$type_station" == "hvb" ]]; then  #vérifie si le type de station est hvb
-        fichier_final="/workspaces/Projet-C-Wire/tmp/hvb_comp.csv"  #attribution d'un chemin pour le fichier final
-        fichier_tmp="/workspaces/Projet-C-Wire/tmp/tmp_hvb_comp.csv"  #attribution d'un chemin pour le fichier tmp
+        fichier_final="$(pwd)/tmp/hvb_comp.csv"  #attribution d'un chemin pour le fichier final
+        fichier_tmp="$(pwd)/tmp/tmp_hvb_comp.csv"  #attribution d'un chemin pour le fichier tmp
         head -n 1 "$chemin_fichier" | cut -d ';' -f 2,7,8 >> "$fichier_final"  #Garder les colonnes 2,7,8 de la première ligne dans le fichier final
         grep -E -e "^[^-]+;[^-]+;-;-;-;-;[^-]+;-" -e "^[^-]+;[^-]+;-;-;[^-]+;-;-;[^-]" "$chemin_fichier" | cut -d ';' -f 2,7,8 | tr "-" "0" >> "$fichier_tmp"  #utilisation des fonctions cut et grep afin de garder uniquement les colonnes 2,7,8 des hvb et des consommateur direct des hvb 
     elif [[ "$type_station" == "hva" ]]; then  #vérifie si le type de station est hva
-        fichier_final="/workspaces/Projet-C-Wire/tmp/hva_comp.csv"  #attribution d'un chemin pour le fichier final
-        fichier_tmp="/workspaces/Projet-C-Wire/tmp/tmp_hva_comp.csv"  #attribution d'un chemin pour le fichier tmp
+        fichier_final="$(pwd)/tmp/hva_comp.csv"  #attribution d'un chemin pour le fichier final
+        fichier_tmp="$(pwd)/tmp/tmp_hva_comp.csv"  #attribution d'un chemin pour le fichier tmp
         head -n 1 "$chemin_fichier" | cut -d ';' -f 3,7,8 >> "$fichier_final"  #Garder les colonnes 3,7,8 de la première ligne dans le fichier final
         grep -E -e "^[^-]+;[^-]+;[^-]+;-;-;-;[^-]+;-" -e "^[^-]+;-;[^-]+;-;[^-]+;-;-;[^-]" "$chemin_fichier" | cut -d ';' -f 3,7,8 | tr "-" "0" >> "$fichier_tmp"  #utilisation des fonctions cut et grep afin de garder uniquement les colonnes 3,7,8 des hva et des consommateur direct des hva 
     elif [[ "$type_station" == "lv" ]]; then  #vérifie si le type de station est lv
         if [[ "$type_conso" == "indiv" ]]; then  #vérifie si le type de consommateur est indiv
-            fichier_final="/workspaces/Projet-C-Wire/tmp/lv_indiv.csv"  #attribution d'un chemin pour le fichier final
-            fichier_tmp="/workspaces/Projet-C-Wire/tmp/tmp_lv_indiv.csv"  #attribution d'un chemin pour le fichier tmp
+            fichier_final="$(pwd)tmp/lv_indiv.csv"  #attribution d'un chemin pour le fichier final
+            fichier_tmp="$(pwd)/tmp/tmp_lv_indiv.csv"  #attribution d'un chemin pour le fichier tmp
             head -n 1 "$chemin_fichier" | cut -d ';' -f 4,7,8 >> "$fichier_final"  #Garder les colonnes 4,7,8 de la première ligne dans le fichier final
             grep -E -e "^[^-]+;-;[^-]+;[^-]+;-;-;[^-]+;-" -e "^[^-]+;-;-;[^-]+;-;[^-]+;-;[^-]" "$chemin_fichier" | cut -d ';' -f 4,7,8 | tr "-" "0" >> "$fichier_tmp"  #utilisation des fonctions cut et grep afin de garder uniquement les colonnes 4,7,8 des lv et des consommateur indiv des lv 
         elif [[ "$type_conso" == "comp" ]]; then  #vérifie si le type de consommateur est comp
-            fichier_final="/workspaces/Projet-C-Wire/tmp/lv_comp.csv"  #attribution d'un chemin pour le fichier final
-            fichier_tmp="/workspaces/Projet-C-Wire/tmp/tmp_lv_comp.csv"  #attribution d'un chemin pour le fichier tmp
+            fichier_final="$(pwd)/tmp/lv_comp.csv"  #attribution d'un chemin pour le fichier final
+            fichier_tmp="$(pwd)/tmp/tmp_lv_comp.csv"  #attribution d'un chemin pour le fichier tmp
             head -n 1 "$chemin_fichier" | cut -d ';' -f 4,7,8 >> "$fichier_final"  #Garder les colonnes 4,7,8 de la première ligne dans le fichier final
             grep -E -e "^[^-]+;-;[^-]+;[^-]+;-;-;[^-]+;-" -e "^[^-]+;-;-;[^-]+;[^-]+;-;-;[^-]" "$chemin_fichier" | cut -d ';' -f 4,7,8 | tr "-" "0" >> "$fichier_tmp"  #utilisation des fonctions cut et grep afin de garder uniquement les colonnes 4,7,8 des lv et des consommateur comp des lv 
         elif [[ "$type_conso" == "all" ]]; then  #vérifie si le type de consommateur est all
-            fichier_final="/workspaces/Projet-C-Wire/tmp/lv_all.csv"  #attribution d'un chemin pour le fichier final
-            fichier_tmp="/workspaces/Projet-C-Wire/tmp/tmp_lv_all.csv"  #attribution d'un chemin pour le fichier tmp
-            fichier_lv_min_max="/workspaces/Projet-C-Wire/tmp/lv_all_minmax.csv"  #attribution d'un chemin pour le fichier lv_min_max
+            fichier_final="$(pwd)/tmp/lv_all.csv"  #attribution d'un chemin pour le fichier final
+            fichier_tmp="$(pwd)/tmp/tmp_lv_all.csv"  #attribution d'un chemin pour le fichier tmp
+            fichier_lv_min_max="$(pwd)/tmp/lv_all_minmax.csv"  #attribution d'un chemin pour le fichier lv_min_max
             head -n 1 "$chemin_fichier" | cut -d ';' -f 4,7,8 >> "$fichier_final"  #Garder les colonnes 4,7,8 de la première ligne dans le fichier final
             grep -E -e "^[^-]+;-;[^-]+;[^-]+;-;-;[^-]+;-" -e "^[^-]+;-;-;[^-]+;[^-]+;-;-;[^-]" -e "^[^-]+;-;-;[^-]+;-;[^-]+;-;[^-]" "$chemin_fichier" | cut -d ';' -f 4,7,8 | tr "-" "0" >> "$fichier_tmp"  #utilisation des fonctions cut et grep afin de garder uniquement les colonnes 4,7,8 des lv et de tous les consommateurs directs des lv 
         fi
@@ -105,30 +105,30 @@ trier_fichier_3_parametre(){  #fonction permettant de trier le fichier en foncti
 }
 trier_fichier_4_parametre(){ #fonction permettant de trier le fichier en fonction des quatres paramètres
     if [[ "$type_station" == "hvb" ]]; then  #vérifie si le type de station est hvb
-        fichier_final="/workspaces/Projet-C-Wire/tmp/hvb_comp_${id_centrale}.csv"  #attribution d'un chemin pour le fichier final
-        fichier_tmp="/workspaces/Projet-C-Wire/tmp/tmp_hvb_comp_${id_centrale}.csv"  #attribution d'un chemin pour le fichier tmp
+        fichier_final="$(pwd)/tmp/hvb_comp_${id_centrale}.csv"  #attribution d'un chemin pour le fichier final
+        fichier_tmp="$(pwd)/tmp/tmp_hvb_comp_${id_centrale}.csv"  #attribution d'un chemin pour le fichier tmp
         head -n 1 "$chemin_fichier" | cut -d ';' -f 2,7,8 >> "$fichier_final"  #Garder les colonnes 2,7,8 de la première ligne dans le fichier final
         grep -E -e "^$id_centrale+;[^-]+;-;-;-;-;[^-]+;-" -e "^$id_centrale+;[^-]+;-;-;[^-]+;-;-;[^-]" "$chemin_fichier" | cut -d ';' -f 2,7,8 | tr "-" "0" >> "$fichier_tmp"  #utilisation des fonctions cut et grep afin de garder uniquement les colonnes 2,7,8 des hvb et de leurs consommateurs directs pour la centrale choisi
     elif [[ "$type_station" == "hva" ]]; then #vérifie si le type de station est hva
-        fichier_final="/workspaces/Projet-C-Wire/tmp/hva_comp_${id_centrale}.csv"  #attribution d'un chemin pour le fichier final
-        fichier_tmp="/workspaces/Projet-C-Wire/tmp/tmp_hva_comp_${id_centrale}.csv"  #attribution d'un chemin pour le fichier tmp
+        fichier_final="$(pwd)/tmp/hva_comp_${id_centrale}.csv"  #attribution d'un chemin pour le fichier final
+        fichier_tmp="$(pwd)/tmp/tmp_hva_comp_${id_centrale}.csv"  #attribution d'un chemin pour le fichier tmp
         head -n 1 "$chemin_fichier" | cut -d ';' -f 3,7,8 >> "$fichier_final"  #Garder les colonnes 3,7,8 de la première ligne dans le fichier final
         grep -E -e "^$id_centrale+;[^-]+;[^-]+;-;-;-;[^-]+;-" -e "^$id_centrale+;-;[^-]+;-;[^-]+;-;-;[^-]" "$chemin_fichier" | cut -d ';' -f 3,7,8 | tr "-" "0" >> "$fichier_tmp"  #utilisation des fonctions cut et grep afin de garder uniquement les colonnes 3,7,8 des hva et de leurs consommateurs directs pour la centrale choisi
     elif [[ "$type_station" == "lv" ]]; then  #vérifie si le type de station est lv
         if [[ "$type_conso" == "indiv" ]]; then  #vérifie si le type de consommateur est indiv
-            fichier_final="/workspaces/Projet-C-Wire/tmp/lv_indiv_${id_centrale}.csv"  #attribution d'un chemin pour le fichier final
-            fichier_tmp="/workspaces/Projet-C-Wire/tmp/tmp_lv_indiv_${id_centrale}.csv"  #attribution d'un chemin pour le fichier tmp
+            fichier_final="$(pwd)/tmp/lv_indiv_${id_centrale}.csv"  #attribution d'un chemin pour le fichier final
+            fichier_tmp="$(pwd)/tmp/tmp_lv_indiv_${id_centrale}.csv"  #attribution d'un chemin pour le fichier tmp
             head -n 1 "$chemin_fichier" | cut -d ';' -f 4,7,8 >> "$fichier_final"  #Garder les colonnes 4,7,8 de la première ligne dans le fichier final
             grep -E -e "^$id_centrale+;-;[^-]+;[^-]+;-;-;[^-]+;-" -e "^$id_centrale+;-;-;[^-]+;-;[^-]+;-;[^-]" "$chemin_fichier" | cut -d ';' -f 4,7,8 | tr "-" "0" >> "$fichier_tmp"  #utilisation des fonctions cut et grep afin de garder uniquement les colonnes 4,7,8 des lv et de leurs consommateurs indiv pour la centrale choisi
         elif [[ "$type_conso" == "comp" ]]; then  #vérifie si le type de consommateur est comp
-            fichier_final="/workspaces/Projet-C-Wire/tmp/lv_comp_${id_centrale}.csv"  #attribution d'un chemin pour le fichier final
-            fichier_tmp="/workspaces/Projet-C-Wire/tmp/tmp_lv_comp_${id_centrale}.csv"  #attribution d'un chemin pour le fichier tmp
+            fichier_final="$(pwd)/tmp/lv_comp_${id_centrale}.csv"  #attribution d'un chemin pour le fichier final
+            fichier_tmp="$(pwd)/tmp/tmp_lv_comp_${id_centrale}.csv"  #attribution d'un chemin pour le fichier tmp
             head -n 1 "$chemin_fichier" | cut -d ';' -f 4,7,8 >> "$fichier_final"  #Garder les colonnes 4,7,8 de la première ligne dans le fichier final
             grep -E -e "^$id_centrale+;-;[^-]+;[^-]+;-;-;[^-]+;-" -e "^$id_centrale+;-;-;[^-]+;[^-]+;-;-;[^-]" "$chemin_fichier" | cut -d ';' -f 4,7,8 | tr "-" "0" >> "$fichier_tmp"  #utilisation des fonctions cut et grep afin de garder uniquement les colonnes 4,7,8 des lv et de leurs consommateurs comp pour la centrale choisi
         elif [[ "$type_conso" == "all" ]]; then  #vérifie si le type de consommateur est all
-            fichier_final="/workspaces/Projet-C-Wire/tmp/lv_all_${id_centrale}.csv"  #attribution d'un chemin pour le fichier final
-            fichier_tmp="/workspaces/Projet-C-Wire/tmp/tmp_lv_all_${id_centrale}.csv"  #attribution d'un chemin pour le fichier tmp
-            fichier_lv_min_max="/workspaces/Projet-C-Wire/tmp/lv_all_minmax_${id_centrale}.csv"  #attribution d'un chemin pour le fichier lv_min_max
+            fichier_final="$(pwd)/tmp/lv_all_${id_centrale}.csv"  #attribution d'un chemin pour le fichier final
+            fichier_tmp="$(pwd)/tmp/tmp_lv_all_${id_centrale}.csv"  #attribution d'un chemin pour le fichier tmp
+            fichier_lv_min_max="$(pwd)/tmp/lv_all_minmax_${id_centrale}.csv"  #attribution d'un chemin pour le fichier lv_min_max
             head -n 1 "$chemin_fichier" | cut -d ';' -f 4,7,8 >> "$fichier_lv_min_max"  #Garder les colonnes 4,7,8 de la première ligne dans le fichier lv_min_max
             head -n 1 "$chemin_fichier" | cut -d ';' -f 4,7,8 >> "$fichier_final"  #Garder les colonnes 4,7,8 de la première ligne dans le fichier final
             grep -E -e "^$id_centrale+;-;[^-]+;[^-]+;-;-;[^-]+;-" -e "^$id_centrale+;-;-;[^-]+;[^-]+;-;-;[^-]" -e "^$id_centrale+;-;-;[^-]+;-;[^-]+;-;[^-]" "$chemin_fichier" | cut -d ';' -f 4,7,8 | tr "-" "0" >> "$fichier_tmp"  #utilisation des fonctions cut et grep afin de garder uniquement les colonnes 4,7,8 des lv et de tous leurs consommateurs pour la centrale choisi
@@ -148,8 +148,8 @@ tri_fichier(){  #fonction permettant de trier le fichier
     sed -i 's/;/:/g' "$fichier_final" #Remplace les ";" par des ":"
 }
 creation_lv_min_max() { #creation_lv_min_max
-        fichier_tmp_lv_min_max="/workspaces/Projet-C-Wire/tmp/tmp_lv_all_minmax.csv" # Définit le chemin vers un fichier temporaire utilisé pour les calculs et transformations
-        fichier_tmp2_lv_min_max="/workspaces/Projet-C-Wire/tmp/tmp2_lv_all_minmax.csv" # Définit le chemin vers un fichier temporaire utilisé pour les calculs et transformations
+        fichier_tmp_lv_min_max="$(pwd)/tmp/tmp_lv_all_minmax.csv" # Définit le chemin vers un fichier temporaire utilisé pour les calculs et transformations
+        fichier_tmp2_lv_min_max="$(pwd)/tmp/tmp2_lv_all_minmax.csv" # Définit le chemin vers un fichier temporaire utilisé pour les calculs et transformations
         if [[ "$(wc -l < "$fichier_final")" -lt 22 ]]; then # Vérifie si le nombre de lignes du fichier final est inférieur ou égal à 21
             awk -F':' '{diff = $3 - $2; abs = (diff < 0) ? -diff : diff; print $0, abs}' OFS=':' "$fichier_final" > "$fichier_tmp_lv_min_max" # Ajoute une quatrième colonne avec la valeur absolue de la différence (|consommation - capacité|)
             { head -n 1 "$fichier_tmp_lv_min_max"; tail -n +2 "$fichier_tmp_lv_min_max" | sort -t':' -k4 -n -r; } > "$fichier_tmp2_lv_min_max" # Trie les lignes du fichier temporaire par la quatrième colonne (différence absolue), en ordre décroissant
@@ -167,7 +167,7 @@ creation_lv_min_max() { #creation_lv_min_max
 }
 
 creation_fichier_graphique(){
-    fichier_graphique_txt="/workspaces/Projet-C-Wire/graphs/gnuplot_donnee.txt"  # Attribution d'un chemin pour le fichier simplifié pour GnuPlot
+    fichier_graphique_txt="$(pwd)/graphs/gnuplot_donnee.txt"  # Attribution d'un chemin pour le fichier simplifié pour GnuPlot
     # Préparation des données avec `awk` (conserver un en-tête simplifié)
     awk -F':' '
     BEGIN { print "ID Diff Color" > "'"$fichier_graphique_txt"'" }  # Début : ajouter un nouvel en-tête
@@ -179,7 +179,7 @@ creation_fichier_graphique(){
 
 }
 creation_graphique() {
-    fichier_graphique_png="/workspaces/Projet-C-Wire/graphs/gnuplot_graphique.png" # Définition du chemin pour le fichier PNG qui contiendra le graphique généré
+    fichier_graphique_png="$(pwd)/graphs/gnuplot_graphique.png" # Définition du chemin pour le fichier PNG qui contiendra le graphique généré
 
     gnuplot << EOF
     set terminal pngcairo size 1280,720 enhanced font 'Verdana,12' # Définition du terminal de sortie au format PNG avec des dimensions et une police spécifiques
@@ -217,7 +217,7 @@ traitement_lv_all(){
     fi
 }
 enregistre_resultat(){
-    chemindossier="/workspaces/Projet-C-Wire/tests"  # Chemin du dossier cible
+    chemindossier="$(pwd)/tests"  # Chemin du dossier cible
     if [ -e "$chemindossier/$(basename "$fichier_final")" ]; then
         echo "Le fichier $(basename "$fichier_final") est déjà présent dans le dossier $chemindossier."
     else
@@ -235,7 +235,7 @@ id_centrale=$4  # Stocke le quatrième argument dans la variable `id_centrale`, 
 verif_tout_arguments  # Vérifie que tous les arguments nécessaires sont présents et valides
 verif_presence_dossier  # Vérifie la présence des dossiers requis pour le traitement
 tri_fichier  # Trie les données du fichier d'entrée selon des critères spécifiques
-make -s -C /workspaces/Projet-C-Wire/Code_C run ARGS="$fichier_tmp $fichier_final"  # Exécute la commande `make` pour compiler et exécuter le programme C avec des arguments spécifiques
+make -s -C Code_C run ARGS="$fichier_tmp $fichier_final"  # Exécute la commande `make` pour compiler et exécuter le programme C avec des arguments spécifiques
 sort -t ':' -k2 -n "$fichier_final" -o "$fichier_final"  # Trie le fichier final par la deuxième colonne en ordre numérique
 traitement_lv_all  # Effectue un traitement spécifique pour toutes les stations de type LV
 enregistre_resultat
