@@ -68,7 +68,7 @@ verif_presence_dossier(){  #fonction vérifiant que les dossiers tmp et graphs e
     fi
     if [[ ! -d "graphs" ]]; then  #condition si le dossier graphs n'existe pas
         mkdir graphs  #création du dossier graphs
-    else  #sinon
+    elif [ "$(ls -A "graphs")" ]; then #Vérifie si le dossier n'est pas vide
         rm -r graphs/*  #suppression du contenu du dossier graphs
     fi
 }
@@ -167,7 +167,7 @@ creation_lv_min_max() { #creation_lv_min_max
 }
 
 creation_fichier_graphique(){
-    fichier_graphique_txt="/workspaces/Projet-C-Wire/graphs/gnuplot_donnee.txt"  # Fichier simplifié pour GnuPlot
+    fichier_graphique_txt="/workspaces/Projet-C-Wire/graphs/gnuplot_donnee.txt"  # Attribution d'un chemin pour le fichier simplifié pour GnuPlot
     # Préparation des données avec `awk` (conserver un en-tête simplifié)
     awk -F':' '
     BEGIN { print "ID Diff Color" > "'"$fichier_graphique_txt"'" }  # Début : ajouter un nouvel en-tête
@@ -178,55 +178,55 @@ creation_fichier_graphique(){
     }' "$fichier_lv_min_max"
 
 }
-creation_graphique(){
-    # Fichier de sortie pour le graphique
-    fichier_graphique_png="/workspaces/Projet-C-Wire/graphs/gnuplot_graphique.png"
+creation_graphique() {
+    fichier_graphique_png="/workspaces/Projet-C-Wire/graphs/gnuplot_graphique.png" # Définition du chemin pour le fichier PNG qui contiendra le graphique généré
 
-    # Génération du graphique avec GnuPlot
     gnuplot << EOF
-    set terminal pngcairo size 1280,720 enhanced font 'Verdana,12'
-    set output "$fichier_graphique_png"
+    set terminal pngcairo size 1280,720 enhanced font 'Verdana,12' # Définition du terminal de sortie au format PNG avec des dimensions et une police spécifiques
+    set output "$fichier_graphique_png" # Chemin de sortie pour le fichier graphique
 
-    # Titres et axes
-    set title "Graphique avec toutes les stations" font ",14"
-    set xlabel "Postes LV (ID Station)" font ",12"
-    set ylabel "Différence (kWh)" font ",12"
+    set title "Graphique avec toutes les stations" font ",14" # Titre du graphique
+    set xlabel "Postes LV (ID Station)" font ",12" # Étiquette de l'axe des abscisses
+    set ylabel "Différence (kWh)" font ",12" # Étiquette de l'axe des ordonnées
 
-    # Style des barres
-    set style data histograms
-    set style histogram cluster gap 1
-    set style fill solid border -1
-    set boxwidth 0.8
+    set style data histograms # Affichage des données sous forme d'histogrammes
+    set style histogram cluster gap 1 # Regroupe les histogrammes avec un espacement de 1 entre les clusters
+    set style fill solid border -1 # Remplit les barres avec des couleurs unies et désactive les bordures
+    set boxwidth 0.8 # Définit la largeur des barres
 
-    # Lecture des données avec application des couleurs
     plot "$fichier_graphique_txt" using (column(3) == 1 ? column(2) : NaN):xtic(1) with boxes lc rgb "red" title "Surplus de consommation", \
-        "$fichier_graphique_txt" using (column(3) == 2 ? column(2) : NaN):xtic(1) with boxes lc rgb "green" title "Marge d'énergie"
+         "$fichier_graphique_txt" using (column(3) == 2 ? column(2) : NaN):xtic(1) with boxes lc rgb "green" title "Marge d'énergie"
+    # Lecture et traçage des données à partir du fichier texte
 EOF
-    if [ -f "$fichier_graphique_png" ]; then
-        echo "Graphique généré avec succès : $fichier_graphique_png"
+
+    if [ -f "$fichier_graphique_png" ]; then # Vérification si le fichier PNG a été généré avec succès
+        echo "Graphique généré avec succès : $fichier_graphique_png" # Message de succès si le fichier existe
     else
-        echo "Erreur : Le graphique n'a pas été généré."
+        echo "Erreur : Le graphique n'a pas été généré." #Message d'erreur et arrêt du script si le fichier n'a pas été généré
+        echo "Le programme a pris $(( $(date +%s) - start )) secondes à s'exécuter." #Affiche le temps d'execution du programme
         exit 1
     fi
 }
+
+
 traitement_lv_all(){
     if [[ "$type_station" == "lv" && "$type_conso" == "all" ]]; then # Vérifie si le type de station est "lv" et le type de consommation est "all"
-        creation_lv_min_max
-        creation_fichier_graphique
-        creation_graphique
+        creation_lv_min_max # Creer le fichier lv_min_max
+        creation_fichier_graphique # Creer le fichier simplifié pourle graphique
+        creation_graphique # Permet de créer le graphique
     fi
 }
 
-nb_args=$#
-verification_demande_aide "$@"
-chemin_fichier="$1"
-type_station=$2
-type_conso=$3
-id_centrale=$4
-verif_tout_arguments
-verif_presence_dossier
-tri_fichier
-make -s -C /workspaces/Projet-C-Wire/Code_C run ARGS="$fichier_tmp $fichier_final"
-sort -t ':' -k2 -n "$fichier_final" -o "$fichier_final"
-traitement_lv_all
-echo "Le programme a pris $(( $(date +%s) - start )) secondes à s'exécuter."
+nb_args=$#  # Stocke le nombre d'arguments passés au script dans la variable `nb_args`
+verification_demande_aide "$@"  # Vérifie si une demande d'aide est passée en argument (`-h`)
+chemin_fichier="$1"  # Stocke le premier argument dans la variable `chemin_fichier`, correspondant au chemin du fichier d'entrée
+type_station=$2  # Stocke le deuxième argument dans la variable `type_station`, correspondant au type de station
+type_conso=$3  # Stocke le troisième argument dans la variable `type_conso`, correspondant au type de consommation
+id_centrale=$4  # Stocke le quatrième argument dans la variable `id_centrale`, correspondant à l'identifiant de la centrale
+verif_tout_arguments  # Vérifie que tous les arguments nécessaires sont présents et valides
+verif_presence_dossier  # Vérifie la présence des dossiers requis pour le traitement
+tri_fichier  # Trie les données du fichier d'entrée selon des critères spécifiques
+make -s -C /workspaces/Projet-C-Wire/Code_C run ARGS="$fichier_tmp $fichier_final"  # Exécute la commande `make` pour compiler et exécuter le programme C avec des arguments spécifiques
+sort -t ':' -k2 -n "$fichier_final" -o "$fichier_final"  # Trie le fichier final par la deuxième colonne en ordre numérique
+traitement_lv_all  # Effectue un traitement spécifique pour toutes les stations de type LV
+echo "Le programme a pris $(( $(date +%s) - start )) secondes à s'exécuter."  # Affiche le temps total d'exécution du programme
